@@ -1,0 +1,1178 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ปั่นเที่ยวบางแสน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@500;700&family=Anuphan:wght@400;500;600&family=Kanit:wght@500;700&family=Charm:wght@700&family=Chonburi&family=Sriracha&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4EEE1;
+  --ink:#2E2A24;
+  --accent:#B8442F;
+  --line:rgba(46,42,36,.14);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--paper:#F4EEE1}}
+:root[data-theme="dark"]{--paper:#F4EEE1}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#BFD6E6;color:var(--ink);font-family:"Anuphan","Sarabun","Noto Sans Thai",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+
+#stage{position:fixed;inset:0;overflow:hidden;background:#EEE6D4}
+#world{position:absolute;left:0;top:0;height:100%;will-change:transform}
+.scene{position:absolute;top:0;height:100%;overflow:hidden;
+  -webkit-mask-image:url(images/bleed.png),url(images/edge.png);mask-image:url(images/bleed.png),url(images/edge.png);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-composite:source-in;mask-composite:intersect}
+.scene:first-child{-webkit-mask-image:none;mask-image:none}
+/* the dark pigment line where wet paint stops spreading */
+.scene .rim{position:absolute;inset:0;background:url(images/bleed-glow.png) no-repeat;mix-blend-mode:screen;pointer-events:none;z-index:1;opacity:0}
+.scene:first-child .rim{display:none}
+.scene.blur{filter:url(#mblur)}
+/* walk-in view: the scene is copied here and zoomed toward its vanishing point */
+#fx,#fxb{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+#fxb{z-index:3}
+.scene img.bg{animation:breathe 14s ease-in-out infinite alternate}
+.scene:nth-child(2n) img.bg{animation-duration:17s;animation-delay:-6s}
+@keyframes breathe{from{transform:scale(1.02) translate(0,0)}to{transform:scale(1.05) translate(-.5%,-.3%)}}
+#rider .shadow{position:absolute;bottom:-.6vh;height:2.2vh;border-radius:50%;background:radial-gradient(closest-side,rgba(50,40,30,.32),rgba(50,40,30,0));pointer-events:none}
+#grade{position:absolute;inset:0;pointer-events:none;z-index:5;opacity:0;
+  background:linear-gradient(180deg,rgba(255,110,45,.62) 0%,rgba(255,150,80,.42) 42%,rgba(150,75,90,.3) 100%);mix-blend-mode:multiply}
+#grade::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,135,85,.38) 0%,rgba(255,170,110,.22) 45%,rgba(255,170,110,0) 75%)}
+#grade::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 85% 55% at 68% 42%,rgba(255,190,110,.6),rgba(255,150,80,0) 72%);mix-blend-mode:screen}
+#focus{position:absolute;top:0;height:100%;overflow:hidden;opacity:0;pointer-events:none;z-index:2;container-type:size}
+#focus .zoom{position:absolute;inset:0;will-change:transform}
+#focus img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.08);display:block}
+#rider #back{position:absolute;bottom:0;max-width:none;opacity:0;transition:none;pointer-events:none;transform-origin:bottom center;filter:drop-shadow(0 4px 3px rgba(40,30,20,.35))}
+.scene img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.02);display:block;user-select:none;-webkit-user-drag:none}
+.pinwrap{position:absolute;inset:0}
+.scene{container-type:size}
+.signwrap{position:absolute;inset:0;transform:scale(1.035);pointer-events:none}
+.sign{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.05;
+  font-family:"Kanit","Anuphan",sans-serif;font-weight:700;white-space:nowrap;opacity:.93;filter:blur(.25px);text-shadow:0 .1cqh .3cqh rgba(0,0,0,.25)}
+.pin{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:8px;padding:0;border:0;background:none;z-index:2}
+.pin .dot{position:relative;width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:17px;
+  box-shadow:0 4px 12px rgba(80,30,20,.35);border:2px solid #FFF8EC}
+.pin .dot::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:2px solid var(--accent);opacity:.6;animation:ring 1.8s ease-out infinite}
+.pin .lbl{background:#FFF8EC;color:#2E2A24;padding:6px 12px;border-radius:999px;font-weight:600;font-size:.88rem;white-space:nowrap;box-shadow:0 3px 10px rgba(60,40,20,.2)}
+.pin:focus-visible .dot{outline:3px solid #fff;outline-offset:3px}
+@keyframes ring{from{transform:scale(.8);opacity:.7}to{transform:scale(1.5);opacity:0}}
+
+#rider{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;z-index:4;transition:filter 1s ease}
+#rider img{position:absolute;bottom:0;max-width:none;transition:opacity .35s ease;filter:drop-shadow(0 4px 3px rgba(40,30,20,.35))}
+.sp-bike{animation:bob .5s ease-in-out infinite alternate}
+.sp-ride{animation:bob .35s ease-in-out infinite alternate}
+.sp-walk{transform-origin:bottom center;animation:step .45s ease-in-out infinite alternate}
+#rider img.parked{animation-play-state:paused}
+@keyframes bob{to{translate:0 -1.5px}}
+@keyframes step{from{rotate:-1.4deg}to{rotate:1.4deg;translate:0 -3px}}
+
+#go{position:absolute;left:50%;top:calc(9vh + env(safe-area-inset-top,0px));transform:translate(-50%,-10px);z-index:6;pointer-events:none;opacity:0;
+  text-align:center;padding:12px 26px 14px;border-radius:22px;max-width:calc(100vw - 32px);
+  background:rgba(255,251,242,.42);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);
+  border:1px solid rgba(255,255,255,.5);box-shadow:0 10px 30px rgba(40,30,20,.18);color:#2E2A24;text-shadow:0 0 10px rgba(255,250,240,.9)}
+#go .k{font-size:.78rem;letter-spacing:.16em;color:var(--accent);font-weight:600}
+#go .t{font-family:"Kanit","Anuphan",sans-serif;font-weight:700;font-size:clamp(1.15rem,3vw,2.1rem);line-height:1.25;margin-top:2px}
+#snd{position:fixed;left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:45;display:flex;align-items:center;gap:8px;
+  border:1px solid rgba(255,255,255,.5);border-radius:999px;padding:9px 16px 9px 12px;font-weight:600;font-size:.9rem;color:#2E2A24;
+  background:rgba(255,251,242,.45);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 6px 18px rgba(0,0,0,.18)}
+#snd .ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-size:.8rem}
+#snd #sndz{font-weight:400;color:#5E5649;font-size:.78rem;display:none}
+#snd.on #sndz{display:inline}
+#snd.on .ic{animation:beat 1s ease-in-out infinite}
+@keyframes beat{50%{transform:scale(1.15)}}
+#snd:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media (max-width:560px){#snd #sndz{display:none!important}#snd{bottom:calc(76px + env(safe-area-inset-bottom,0px))}}
+#act{position:absolute;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  border:0;border-radius:999px;background:var(--accent);color:#fff;font-weight:600;padding:12px 22px;font-size:1rem;
+  box-shadow:0 8px 22px rgba(0,0,0,.35);transition:opacity .3s,transform .3s;z-index:6;white-space:nowrap}
+#act.show{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+#act:focus-visible{outline:3px solid #fff;outline-offset:3px}
+
+#hint{position:absolute;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:6;
+  background:rgba(251,247,238,.92);color:#2E2A24;padding:10px 18px;border-radius:999px;font-weight:500;transition:opacity .4s;white-space:nowrap}
+#hint span{display:inline-block;margin-left:6px;animation:nudge 1.4s ease-in-out infinite}
+@keyframes nudge{50%{transform:translateY(4px)}}
+
+/* ending + credits */
+#end{position:absolute;inset:0;display:grid;place-items:center;padding:24px 16px;background:rgba(18,20,34,.25);opacity:0;pointer-events:none;transition:opacity .6s;z-index:7}
+#end.show{opacity:1;pointer-events:auto}
+#end .card{background:rgba(255,251,242,.3);-webkit-backdrop-filter:blur(20px) saturate(1.3);backdrop-filter:blur(20px) saturate(1.3);border:1px solid rgba(255,255,255,.45);text-shadow:0 0 10px rgba(255,250,240,.8);color:#2E2A24;border-radius:20px;padding:26px 24px;max-width:30rem;width:100%;max-height:calc(100vh - 48px);overflow-y:auto;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+#end h2{font-family:"Noto Serif Thai",serif;font-size:clamp(1.5rem,5vw,2.2rem);margin:0 0 6px}
+#end .sub{color:#5E5649;margin:0 0 18px}
+#end h3{font-size:.8rem;letter-spacing:.14em;color:var(--accent);margin:16px 0 6px}
+#end ul{list-style:none;margin:0;padding:0;font-size:.85rem;line-height:1.7;color:#4E473C}
+#end a{color:#7A4A2A}
+#again{margin-top:20px;border:0;border-radius:999px;background:var(--accent);color:#fff;font-weight:600;padding:11px 24px}
+#again:focus-visible{outline:3px solid #2E2A24;outline-offset:3px}
+
+
+/* ---------- intro ---------- */
+#fall{position:fixed;inset:0;width:100%;height:100%;z-index:41;pointer-events:none}
+#intro.vb{filter:url(#vblur)}
+#intro{position:fixed;left:0;right:0;top:0;height:400vh;z-index:40;overflow:hidden;color:#2B2621;will-change:transform;background:url(images/sky.jpg) center bottom/auto 100vh no-repeat,linear-gradient(180deg,#2F5D96 0%,#4B7DB6 30%,#6A9ECB 62%,#70A5CD 75%,#70A5CD 100%);-webkit-mask-image:linear-gradient(#000,#000),url(images/skyedge.png);mask-image:linear-gradient(#000,#000),url(images/skyedge.png);-webkit-mask-size:100% calc(100% - 30vh),100% 30vh;mask-size:100% calc(100% - 30vh),100% 30vh;-webkit-mask-position:top,bottom;mask-position:top,bottom;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+#intro::before{content:"";position:absolute;left:0;right:0;top:0;height:100vh;background:radial-gradient(ellipse 60% 45% at 50% 42%,rgba(30,70,120,.18),rgba(30,70,120,0) 72%);pointer-events:none}
+#intro.gone{opacity:0;visibility:hidden;pointer-events:none}
+#intro .wrap{position:relative;max-width:46rem;margin:0 auto;padding:0 20px 12vh;height:100vh;display:flex;flex-direction:column;justify-content:center;text-align:center}
+#intro .cloud{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.95),rgba(255,255,255,.55) 55%,rgba(255,255,255,0));filter:blur(6px);animation:drift linear infinite}
+#intro .c1{width:46vw;height:16vw;left:-8vw;top:8vh;animation-duration:70s}
+#intro .c2{width:38vw;height:13vw;right:-6vw;top:22vh;animation-duration:90s;animation-direction:reverse}
+#intro .c3{width:60vw;height:20vw;left:20vw;bottom:2vh;animation-duration:110s}
+#intro .c4{width:30vw;height:11vw;left:4vw;bottom:24vh;animation-duration:80s;animation-direction:reverse}
+@keyframes drift{from{transform:translateX(-6vw)}to{transform:translateX(6vw)}}
+#intro .down{position:absolute;left:0;right:0;margin:0 auto;width:max-content;top:calc(100vh - 70px - env(safe-area-inset-bottom,0px));font-family:"Sarabun",sans-serif;font-weight:500;color:#2E3A4F;background:rgba(255,255,255,.55);padding:10px 20px;border-radius:999px;white-space:nowrap}
+#intro .down span{display:inline-block;margin-left:6px;animation:nudge 1.4s ease-in-out infinite}
+#intro .eyebrow{font-family:"Sarabun",sans-serif;letter-spacing:.32em;font-size:.8rem;color:#B5533C;font-weight:500;text-transform:uppercase}
+#intro h1,#intro .eyebrow,#intro .en,#intro .lead{color:#FFFFFF!important;text-shadow:0 2px 18px rgba(25,55,95,.45),0 1px 3px rgba(25,55,95,.35)!important}
+#intro h1 span{color:#FFE7C7!important}
+#intro .brush{opacity:.95}
+#intro h1{font-family:"Chonburi","Noto Serif Thai",serif;font-weight:400;font-size:clamp(3rem,11vw,6.6rem);line-height:1.12;margin:.35em 0 .1em;color:#2E3A4F;
+  text-shadow:0 2px 0 rgba(255,255,255,.6)}
+#intro h1 span{display:block;font-size:.42em;color:#B5533C;margin-top:.1em}
+#intro .en{font-family:"Noto Serif Thai",serif;font-style:italic;color:#6B6152;font-size:clamp(1rem,2.4vw,1.25rem);letter-spacing:.06em}
+#intro .brush{width:min(320px,70%);height:14px;margin:26px auto 30px;background:linear-gradient(90deg,transparent,#E2A86B 15%,#D9805F 50%,#7FA9C9 85%,transparent);
+  border-radius:50%;filter:blur(1.2px);opacity:.8}
+#intro .lead{font-family:"Sriracha",cursive;font-size:clamp(1.25rem,3vw,1.6rem);color:#3E4A5E;line-height:1.6;margin:0 0 8vh}
+#intro p.body{font-family:"Sarabun",sans-serif;font-weight:300;font-size:clamp(1rem,2.2vw,1.12rem);line-height:2;color:#3B342C;text-align:left;margin:0 0 16px;text-indent:2.2em}
+#intro .route{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:10px 6px;margin:30px 0 8px}
+#intro .route figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;width:84px}
+#intro .route img{height:62px;width:auto;max-width:84px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(40,30,20,.25))}
+#intro .route figcaption{font-family:"Sarabun",sans-serif;font-size:.8rem;color:#5E5649}
+#intro .route .arr{font-family:"Sriracha",cursive;color:#C7896A;font-size:1.3rem;padding-bottom:26px}
+#intro .stops{font-family:"Sarabun",sans-serif;font-size:.92rem;color:#5E5649;line-height:1.9;margin:6px auto 30px;max-width:38rem}
+#intro .how{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:8px 0 34px;text-align:left}
+#intro .how div{background:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.7);border-radius:16px;padding:14px 16px;font-family:"Sarabun",sans-serif;font-size:.92rem;line-height:1.6;color:#3B342C}
+#intro .how b{display:block;font-family:"Sriracha",cursive;font-weight:400;font-size:1.1rem;color:#B5533C;margin-bottom:2px}
+#start{font-family:"Chonburi",serif;font-size:clamp(1.15rem,3vw,1.45rem);border:0;border-radius:999px;padding:16px 38px;background:#B5533C;color:#FFF8EC;
+  box-shadow:0 10px 26px rgba(120,50,30,.35);cursor:pointer;transition:transform .2s}
+#start:hover{transform:translateY(-2px)}
+#start:focus-visible{outline:3px solid #2E3A4F;outline-offset:4px}
+#intro .sub2{font-family:"Sarabun",sans-serif;font-size:.82rem;color:#7A705F;margin-top:12px}
+#intro .fade{opacity:0;transform:translateY(14px);animation:rise 1s ease forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){#intro .fade{animation:none;opacity:1;transform:none}}
+
+/* panel */
+#veil{position:fixed;inset:0;background:rgba(20,16,12,.06);opacity:0;pointer-events:none;transition:opacity .3s;z-index:20}
+#veil.show{opacity:1;pointer-events:auto}
+#panel{position:fixed;z-index:21;background:linear-gradient(180deg,rgba(255,251,242,.34),rgba(255,251,242,.22));-webkit-backdrop-filter:blur(22px) saturate(1.35);backdrop-filter:blur(22px) saturate(1.35);text-shadow:0 0 10px rgba(255,250,240,.75);color:#2E2A24;display:flex;flex-direction:column;
+  right:0;top:0;bottom:0;width:min(30rem,100vw);transform:translateX(100%);transition:transform .38s cubic-bezier(.2,.8,.2,1);
+  box-shadow:-10px 0 40px rgba(40,30,20,.12);border-left:1px solid rgba(255,255,255,.45)}
+#panel.show{transform:none}
+@media (max-width:700px){
+  #panel{left:0;right:0;top:auto;width:auto;max-height:82vh;border-radius:20px 20px 0 0;transform:translateY(100%)}
+  #panel.show{transform:none}
+}
+#panel header{padding:20px 20px 12px;border-bottom:1px solid var(--line);position:relative}
+#panel header .kick{font-size:.78rem;letter-spacing:.14em;color:var(--accent);font-weight:600}
+#panel header h3{font-family:"Noto Serif Thai",serif;font-size:1.45rem;margin:4px 40px 4px 0;line-height:1.35}
+#panel header p{margin:0;color:#5E5649;line-height:1.65;font-size:.95rem}
+#close{position:absolute;right:12px;top:14px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.35);font-size:1.3rem;line-height:1}
+#close:focus-visible{outline:3px solid #2E2A24}
+#pbody{overflow-y:auto;padding:14px 20px calc(24px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+.item{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:14px 0;border-bottom:1px dashed var(--line)}
+.item:last-of-type{border-bottom:0}
+.num{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.4);color:#6A4A2A;font-weight:600;display:grid;place-items:center;font-size:.9rem}
+.item h4{margin:2px 0 2px;font-size:1.02rem}
+.item .tag{display:inline-block;font-size:.75rem;background:rgba(255,255,255,.45);color:#6A4A2A;padding:2px 8px;border-radius:999px;margin-right:6px}
+.item p{margin:6px 0 0;line-height:1.65;color:#4E473C;font-size:.93rem}
+.item .meta{margin-top:6px;font-size:.82rem;color:#7A705F}
+.maplink{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.4);border:1px solid rgba(46,42,36,.15);color:#1F5FAF;font-size:.84rem;font-weight:600;text-decoration:none}
+.maplink:hover{background:#fff}
+.maplink:focus-visible{outline:3px solid #2E2A24;outline-offset:2px}
+.maplink svg{width:15px;height:15px;flex:none}
+.note{margin-top:14px;padding:12px 14px;background:rgba(255,255,255,.3);border-radius:12px;font-size:.85rem;line-height:1.6;color:#5E5040}
+.src{margin-top:12px;font-size:.78rem;color:#7A705F;line-height:1.7}
+.src a{color:#7A4A2A}
+@media (prefers-reduced-motion: reduce){.scene img.bg{animation:none}#fx{display:none}.pin .dot::after,#hint span,#rider img{animation:none!important}#panel{transition:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="mblur" x="-5%" y="0" width="110%" height="100%"><feGaussianBlur id="mblurG" stdDeviation="0 0"/></filter><filter id="vblur" x="0" y="-2%" width="100%" height="104%"><feGaussianBlur id="vblurG" stdDeviation="0 0"/></filter></svg>
+<div id="stage">
+  <div id="world"></div>
+  <canvas id="fxb" aria-hidden="true"></canvas>
+  <canvas id="fx" aria-hidden="true"></canvas>
+  <div id="grade"></div>
+  <div id="focus"><div class="zoom"></div></div>
+  <div id="rider"><img id="back" src="images/walk-back.png" alt="" class="sp-walk"></div>
+  <div id="hint">เลื่อนลงเพื่อออกเดินทาง<span aria-hidden="true">↓</span></div>
+  <div id="go" aria-live="polite"><div class="k" id="gok" hidden></div><div class="t" id="got"></div></div>
+  <button id="act" type="button"></button>
+  <button id="snd" type="button" aria-pressed="false"><span class="ic" aria-hidden="true">♪</span><span id="sndt">เปิดเสียง</span><span id="sndz"></span></button>
+  <div id="end"><div class="card">
+    <h2>จบทริปบางแสนแล้ว</h2>
+    <p class="sub">ขอบคุณที่เที่ยวบางแสนไปด้วยกัน</p>
+    <h3>ผู้จัดทำ</h3><ul id="makers"></ul>
+    <h3>ภาพประกอบ</h3><ul><li>ภาพสีน้ำสร้างด้วย AI (Canva) จากคำบรรยายสถานที่จริงในบางแสน</li></ul>
+    <h3>แหล่งข้อมูล</h3><ul id="credits"></ul>
+    <button type="button" id="again">เที่ยวอีกรอบ</button>
+  </div></div>
+</div>
+<canvas id="fall" aria-hidden="true"></canvas>
+<section id="intro" aria-labelledby="introTitle">
+ <div class="wrap">
+  <div class="eyebrow fade" style="animation-delay:.1s">Bangsaen · A Watercolor Journey</div>
+  <h1 id="introTitle" class="fade" style="animation-delay:.35s">เที่ยวบางแสน<span>หนึ่งวันในภาพสีน้ำ</span></h1>
+  <div class="en fade" style="animation-delay:.6s">from a morning on campus to a night at the market</div>
+  <div class="brush fade" style="animation-delay:.8s"></div>
+  <p class="lead fade" style="animation-delay:1s">"ทะเลที่ใกล้กรุงเทพฯ ที่สุด กับเมืองมหาวิทยาลัยที่มีเรื่องเล่ามากกว่าที่คิด"</p>
+ </div>
+ <div class="down fade" style="animation-delay:1.5s">เลื่อนลงเพื่อออกเดินทาง<span aria-hidden="true">↓</span></div>
+</section>
+<div id="veil"></div>
+<aside id="panel" role="dialog" aria-modal="true" aria-labelledby="ptitle" aria-hidden="true">
+  <header><div class="kick" id="pkick"></div><h3 id="ptitle"></h3><p id="pintro"></p><button id="close" type="button" aria-label="ปิด">×</button></header>
+  <div id="pbody"></div>
+</aside>
+
+<script>
+/* =====================================================================
+   แก้เนื้อหาได้ที่นี่
+   - MAKERS: รายชื่อผู้จัดทำ (แสดงตอนจบ)
+   - SCENES: ฉากเรียงตามลำดับ ภาพอยู่ที่ images/<key>.jpg
+     pin = ปุ่มบนฉาก (x,y = ตำแหน่งเป็นสัดส่วน 0–1 ของภาพ), panel = ชื่อแผงข้อมูลใน PANELS
+   - mode: พาหนะในฉากนั้น (bus รถเหลือง, walk เดิน, truck รถแดง, bike จักรยาน, win วินมอเตอร์ไซค์)
+   ===================================================================== */
+const MAKERS=['(ใส่ชื่อสมาชิกกลุ่ม)'];
+
+const GO={
+ thamrong:'นั่งรถเหลืองไปหอประชุมธำรงบัวศรีกันเถอะ!',aquarium:'ไปดูพิพิธภัณฑ์สัตว์น้ำบางแสนกันต่อ!',
+ burapha_gate:'ลงจากรถเหลือง เดินออกหน้ามอกันเถอะ!',student_street:'ข้ามฝั่งไปหาของกินหน้ามอกันเถอะ!',
+ laemthong:'เดินต่อไปห้างแหลมทองกันเถอะ!',laemthong_inside:'เข้าไปเดินเล่นในห้างกันหน่อย!',
+ hospital:'ไปรอรถแดงหน้าโรงพยาบาลกันเถอะ!',nongmon:'นั่งรถแดงไปตลาดหนองมนกันเถอะ!',nongmon_inside:'เดินเข้าไปเลือกของฝากกัน!',
+ wonnapha:'นั่งรถแดงเลียบทะเลไปหาดวอนนภากันเถอะ!',wannapark:'เช่าจักรยาน แล้วปั่นไปวันนาปาร์คกันเถอะ!',
+ jaophosaen:'ปั่นต่อไปไหว้ศาลเจ้าพ่อแสนกันเถอะ!',beach:'ปั่นเลียบหาดบางแสนกันต่อ!',beach_mid:'ปั่นผ่านทางเดินริมหาดกันเถอะ!',
+ laemthaen:'ไปชมโขดหินที่แหลมแท่นกันเถอะ!',chonlamark:'ปั่นไปสะพานชลมารควิถีกันเถอะ!',
+ khaosammuk:'ปั่นขึ้นเขาสามมุขตอนแดดใกล้ตกกันเถอะ!',khaosammuk_view:'ขึ้นไปจุดชมวิวกันเถอะ!',
+ shrine:'จอดจักรยาน เดินไปไหว้เจ้าแม่สามมุขกันเถอะ!',parkin:'ซ้อนวินไปตลาดปาร์คอินกันเถอะ!',
+ parkin_food:'เดินหาของอร่อยในปาร์คอินกันเถอะ!',parkin_seat:'ไปนั่งพักที่ลานโคมไม้ไผ่กันเถอะ!'};
+const SCENES=[
+ // ช่วงเช้า: นั่งรถเหลืองในมหาวิทยาลัย
+ {key:'education',fx:['fountain:.38-.6:.55','birds','clouds'],p:0.21,t:'คณะศึกษาศาสตร์',mode:'bus',pin:{x:.42,y:.3,panel:'edu',label:'คณะศึกษาศาสตร์'}},
+ {key:'thamrong',fx:['rays:.86:.06','birds','butterflies'],p:0.21,t:'หอประชุมธำรงบัวศรี',mode:'bus',pin:{x:.62,y:.32,panel:'thamrong',label:'หอประชุมธำรง บัวศรี'}},
+ {key:'aquarium',fx:['fountain:.45-.62:.58','bubbles','sparkle:.6'],p:0.21,t:'พิพิธภัณฑ์สัตว์น้ำบางแสน',mode:'bus',pin:{x:.6,y:.42,panel:'burapha',label:'เรื่องน่าทึ่งใน ม.บูรพา'}},
+ // ลงรถเหลือง เดินออกหน้ามอไปแหลมทอง
+ {key:'burapha_gate',fx:['rays:.9:.0','petals','butterflies'],p:0.255,t:'หน้ามหาวิทยาลัยบูรพา',mode:'walk',pin:{x:.5,y:.27,panel:'buuhistory',label:'ประวัติ ม.บูรพา'}},
+ {key:'student_street',fx:['steam','pigeons'],p:0.289,t:'ถนนตรงข้ามมอ แหล่งของกินนิสิต',mode:'walk',pin:{x:.42,y:.3,panel:'student',label:'ย่านของกินนิสิต'},
+  // ชื่อร้านอยู่ในภาพแล้ว ถ้าตัวหนังสือในภาพเพี้ยน เปลี่ยน _signs กลับเป็น signs เพื่อใช้ตัวหนังสือซ้อนแทน
+  _signs:[
+   {x:.615,y:.12,w:.1,h:.27,t:'ห้างเพชรทอง|ชิน 2|เยาวราช',c:'#F6D46B',s:3.9,f:'Charm'},
+   {x:.578,y:.535,w:.13,h:.035,t:'ห้างเพชรทอง ชิน 2 เยาวราช',c:'#FFE9A8',s:1.7},
+   {x:.73,y:.385,w:.2,h:.1,t:'บริษัท แวน 49 จำกัด',c:'#FFFFFF',s:3.4},
+   {x:.513,y:.03,w:.044,h:.19,t:'ห้อง|ว่าง',c:'#FFFFFF',s:3.2},
+   {x:.513,y:.255,w:.04,h:.13,t:'ร้าน|ยา',c:'#FFFFFF',s:2.8},
+   {x:.36,y:.225,w:.035,h:.1,t:'ข้าว|มันไก่',c:'#FFF6E0',s:1.7},
+   {x:.285,y:.175,w:.08,h:.06,t:'ชานมไข่มุก',c:'#FFFFFF',s:1.7,r:-14},
+   {x:.94,y:.08,w:.06,h:.42,t:'ก๋|ว|ย|เ|ตี๋|ย|ว',c:'#FFFFFF',s:2.6}
+ ]},
+ {key:'laemthong',fx:['clouds','pigeons','glints','leaves'],p:0.21,t:'แหลมทอง บางแสน',mode:'walk',pin:{x:.3,y:.32,panel:'laemthong',label:'ห้างแหลมทอง'}},
+ {key:'laemthong_inside',fx:['motes'],p:0.34,t:'ในห้างแหลมทอง',mode:'walk',indoor:true,pin:{x:.5,y:.3,panel:'mallin',label:'ร้านน่าเดินในห้าง'}},
+ // ขึ้นรถแดงไปตลาดหนองมน แล้วลงที่หาดวอนนภา
+ {key:'hospital',fx:['doves','clouds'],p:0.21,dy:.035,t:'โรงพยาบาลมหาวิทยาลัยบูรพา',mode:'truck',pin:{x:.3,y:.27,panel:'hospital',label:'โรงพยาบาล & วิธีนั่งรถแดง'}},
+ {key:'road_city',travel:true,fx:['traffic','traffic'],p:0.23,t:'บนถนนสุขุมวิท',mode:'truck'},
+ // ลงรถแดงเดินเข้าตลาดหนองมน แล้วออกมาขึ้นรถแดงอีกคัน
+ {key:'nongmon',fx:['smoke:.55','steam'],p:0.238,t:'ตลาดหนองมน',mode:'walk',at:.42,pin:{x:.62,y:.27,panel:'khaolam',label:'ประวัติตลาดหนองมน'},signs:[{x:.06,y:.3,w:.31,h:.07,t:'ตลาดหนองมน',c:'#FBE9C8',s:4.4,r:3}]},
+ {key:'nongmon_inside',fx:['steam','motes'],p:0.42,t:'ในตลาดหนองมน',mode:'walk',indoor:true,signs:[{x:.11,y:.005,w:.14,h:.09,t:'ของฝากหนองมน',c:'#FFF3D6',s:3.4,r:4},{x:.265,y:.01,w:.1,h:.11,t:'ข้าวหลาม',c:'#7A2E12',s:3.6,r:6},{x:.82,y:0,w:.09,h:.05,t:'ปลาหมึกแห้ง',c:'#FFFFFF',s:2.2,r:-8}],pin:{x:.5,y:.4,panel:'nongmon',label:'ของฝากหนองมน'}},
+ // เช่าจักรยานที่หาดวอนนภา ปั่นเลียบหาด
+ {key:'road_beach',travel:true,fx:['traffic','gulls'],p:0.24,t:'ถนนเลียบชายหาด',mode:'truck'},
+ {key:'wonnapha',fx:['kites','gulls','sparkle:.52'],p:0.289,t:'หาดวอนนภา',mode:'bike',pin:{x:.5,y:.3,panel:'bangsaen',label:'รู้จักหาดบางแสน'}},
+ {key:'wannapark',fx:['bunting','gulls','sparkle:.52'],p:0.255,t:'ตลาดวันนาปาร์ค',mode:'bike',pin:{x:.5,y:.46,panel:'wanna',label:'ข้อมูลตลาดวันนาปาร์ค'}},
+ {key:'jaophosaen',fx:['smoke:.5','halo:.5:.42','gulls','sparkle:.68'],p:0.272,t:'ศาลเจ้าพ่อแสน',mode:'bike',pin:{x:.4,y:.42,panel:'saen',label:'ศาลเจ้าพ่อแสน'}},
+ {key:'beach',fx:['leaves','gulls','sparkle:.6'],p:0.272,t:'หาดบางแสน',mode:'bike',pin:{x:.55,y:.36,panel:'beachwalk',label:'เที่ยวริมหาดให้ปลอดภัย'}},
+ {key:'beach_mid',fx:['soap','butterflies'],p:0.255,t:'ทางเดินริมหาดบางแสน',mode:'bike',pin:{x:.72,y:.4,panel:'cafes',label:'คาเฟ่ริมทะเล'}},
+ {key:'laemthaen',fx:['halo:.555:.3','gulls','sparkle:.62'],p:0.238,g:0,t:'แหลมแท่น',mode:'bike',pin:{x:.62,y:.32,panel:'laemthaen',label:'แหลมแท่น & เจ้าแม่กวนอิม'}},
+ {key:'chonlamark',fx:['rays:.97:.28','gulls','sparkle:.58'],p:0.255,g:0.12,t:'สะพานชลมารควิถี',mode:'bike',pin:{x:.55,y:.28,panel:'chonlamark',label:'เรื่องสะพานชลมารควิถี'}},
+ {key:'road_hill',travel:true,fx:['gulls','leaves'],p:0.24,g:0.25,t:'ถนนรอบเขาสามมุข',mode:'bike'},
+ {key:'khaosammuk',fx:['rays:.1:.42','flock','gulls'],p:0.238,g:0.3,t:'เขาสามมุข',mode:'bike',pin:{x:.3,y:.42,panel:'history',label:'ประวัติเขาสามมุข'}},
+ {key:'khaosammuk_view',fx:['dryleaves','flock','sparkle:.58'],p:0.255,g:0.18,t:'จุดชมวิวเขาสามมุข',mode:'bike',pin:{x:.38,y:.32,panel:'viewpoint',label:'จุดชมวิวเขาสามมุข'}},
+ // จอดจักรยาน เดินไปไหว้เจ้าแม่ แล้วนั่งวินไปปาร์คอิน
+ {key:'shrine',fx:['smoke:.62','halo:.62:.14','lanterns','petals'],p:0.255,g:0.3,t:'ศาลเจ้าแม่เขาสามมุข',mode:'walk',light:.9,pin:{x:.5,y:.4,panel:'sammuk',label:'ตำนานเจ้าแม่สามมุข'}},
+ {key:'road_night',travel:true,fx:['traffic','fireflies'],p:0.24,dy:.045,t:'ถนนยามค่ำ',mode:'win',light:.75},
+ {key:'parkin',fx:['fireflies','lanterns'],p:0.272,t:'ตลาดปาร์คอิน',mode:'walk',at:.45,light:.7,pin:{x:.62,y:.42,panel:'parkininfo',label:'ข้อมูลตลาดปาร์คอิน'}},
+ {key:'parkin_food',fx:['twinkle','fireflies','skylant'],p:0.306,t:'ในตลาดปาร์คอิน',mode:'walk',at:.04,indoor:true,light:.75,pin:{x:.45,y:.4,panel:'parkin',label:'ร้านในตลาดปาร์คอิน'}},
+ {key:'parkin_seat',fx:['skylant','fireflies'],p:0.289,t:'ลานโคมไม้ไผ่ปาร์คอิน',mode:'walk',indoor:true,light:.7,pin:{x:.5,y:.32,panel:'parkinseat',label:'ลานโคมไม้ไผ่'}}
+];
+// ยานพาหนะแต่ละแบบ: ภาพตอนมีคนนั่ง, ภาพตอนจอดว่าง, ความสูง (สัดส่วนของจอ), จุดที่ตัวละครยืน (0–1 จากซ้าย)
+// h = height compared with one standing person in that scene (p)
+const VEHICLES={
+ bus:  {src:'images/bus.png',  empty:'images/bus-empty.png',  h:1.35,anchor:.5, cls:'sp-ride',arrive:true},
+ walk: {src:'images/walk.png', empty:null,                     h:1, anchor:.5, cls:'sp-walk'},
+ truck:{src:'images/truck.png',empty:'images/truck-empty.png',h:1.55,anchor:.45,cls:'sp-ride',arrive:true},
+ bike: {src:'images/bike.png', empty:null,                     h:1.05, anchor:.55,cls:'sp-bike'},
+ win:  {src:'images/win.png',  empty:'images/win-empty.png',  h:.95,anchor:.5, cls:'sp-ride',arrive:true}
+};
+const CHANGE_AT=.3;   // เปลี่ยนพาหนะตอนเลื่อนผ่านไป 30% ของฉาก
+
+const PANELS={
+ edu:{map:'คณะศึกษาศาสตร์ มหาวิทยาลัยบูรพา',kick:'คณะศึกษาศาสตร์ · ม.บูรพา',title:'บ้านของว่าที่ครูริมทะเลบางแสน',
+  intro:'มหาวิทยาลัยบูรพาเริ่มต้นจากการเป็นวิทยาลัยผลิตครู คณะศึกษาศาสตร์จึงเป็นเหมือนหัวใจดั้งเดิมของที่นี่',
+  items:[
+   {h:'รากเหง้าของมหาวิทยาลัย',p:'ปี 2498 ที่นี่เปิดเป็น "วิทยาลัยวิชาการศึกษา บางแสน" สถาบันอุดมศึกษาแห่งแรกนอกกรุงเทพฯ ที่เน้นการผลิตครู'},
+   {h:'เรียนเป็นครูหลายสาขา',p:'ตัวอย่างสาขาที่เปิดรับ เช่น ภาษาจีน คณิตศาสตร์ เคมี ชีววิทยา ฟิสิกส์ และเทคโนโลยีการศึกษา หลายสาขาเป็นหลักสูตร 5 ปีที่รวมการฝึกสอนในโรงเรียนจริง'},
+   {h:'ไม่ได้มีแค่ครูในห้องเรียน',p:'สายเทคโนโลยีการศึกษาเรียนทั้งการออกแบบการสอน การผลิตสื่อ และการเขียนโปรแกรมเพื่อการเรียนรู้'},
+   {h:'"บูรพา" แปลว่าอะไร',p:'บูรพา แปลว่า ทิศตะวันออก เพราะเป็นมหาวิทยาลัยหลักของภาคตะวันออก'}
+  ],
+  sources:[['TruePlookpanya: รับตรงคณะศึกษาศาสตร์ ม.บูรพา','https://www.trueplookpanya.com/tcas/quotanews?id=5206'],['Burapha University – Wikipedia','https://en.wikipedia.org/wiki/Burapha_University']]},
+
+ thamrong:{map:'หอประชุมธำรง บัวศรี มหาวิทยาลัยบูรพา',kick:'หอประชุมธำรง บัวศรี',title:'หอประชุมที่ตั้งชื่อตามผู้บุกเบิก',
+  intro:'อาคารหลังคาโค้งสีทองที่เห็นแต่ไกล เป็นหนึ่งในภาพจำของ ม.บูรพา',
+  items:[
+   {h:'ศ.ดร.ธำรง บัวศรี คือใคร',p:'ท่านเป็นผู้บุกเบิกการก่อตั้งวิทยาลัยวิชาการศึกษา บางแสน ซึ่งต่อมาคือมหาวิทยาลัยบูรพา หอประชุมจึงใช้ชื่อท่านเป็นเกียรติ'},
+   {h:'วันรำลึกประจำปี',p:'มหาวิทยาลัยจัดงาน "วันศาสตราจารย์ ดร.ธำรง บัวศรี" ทุกปีในช่วงเดือนตุลาคม เพื่อระลึกถึงท่าน'},
+   {h:'ใช้ทำอะไร',p:'เป็นที่จัดงานใหญ่ของมหาวิทยาลัย ทั้งพิธีการ งานสัมมนา และกิจกรรมของนิสิต'},
+   {h:'ทางเชื่อมลอยฟ้า',p:'มีทางเดินยกระดับเชื่อมกับอาคารข้าง ๆ เดินได้โดยไม่ต้องตากแดด'}
+  ],
+  sources:[['คณะมนุษยศาสตร์ฯ ม.บูรพา: วันศาสตราจารย์ ดร.ธำรง บัวศรี','https://huso.buu.ac.th/2025/10/14/buasri/']]},
+
+ student:{map:'ถนนลงหาดบางแสน หน้ามหาวิทยาลัยบูรพา',kick:'หน้ามอ · ย่านนิสิต',title:'ถนนสายของกินนิสิต',
+  intro:'ฝั่งตรงข้ามมหาวิทยาลัยคือย่านที่นิสิตใช้ชีวิตจริง ๆ ทั้งกิน ซื้อของ และหอพัก',
+  items:[
+   {h:'ของกินราคานิสิต',p:'มีทั้งร้านข้าวมันไก่ ก๋วยเตี๋ยว ข้าวจานเดียว และร้านชานมไข่มุกเรียงกันตลอดแนว'},
+   {h:'ร้านยา ร้านเครื่องเขียน หอพัก',p:'ของจำเป็นของนักศึกษาหาได้ครบในระยะเดิน'},
+   {h:'ข้ามถนนให้ปลอดภัย',p:'ถนนเส้นนี้รถเยอะ ควรข้ามที่สะพานลอยหรือทางม้าลาย'},
+   {h:'คึกคักช่วงเย็น',p:'หลังเลิกเรียนคนเยอะที่สุด ร้านหลายร้านเปิดถึงดึก'}
+  ],sources:[]},
+
+ laemthong:{map:'ศูนย์การค้าแหลมทอง บางแสน',kick:'แหลมทอง บางแสน',title:'ห้างใกล้มอที่ทุกคนรู้จัก',
+  intro:'ศูนย์การค้าที่เดินถึงได้จาก ม.บูรพา เป็นทั้งที่หลบร้อน ที่นัดเพื่อน และที่ดูหนังของคนบางแสน',
+  items:[
+   {h:'จุดนัดพบยอดนิยม',p:'อยู่ไม่ไกลจากหน้ามอ นิสิตมักนัดเจอกันที่นี่ก่อนไปเที่ยวต่อ'},
+   {h:'โรงภาพยนตร์',p:'มีโรงหนังให้ดูหนังใหม่ได้โดยไม่ต้องเข้าเมือง'},
+   {h:'ศูนย์รวมของใช้',p:'มีร้านอาหาร ร้านของใช้ และซูเปอร์มาร์เก็ตครบในที่เดียว'}
+  ],sources:[]},
+
+ mallin:{maps:true,kick:'ในห้างแหลมทอง',title:'ร้านน่าเดินในแหลมทอง',
+  intro:'ห้างใกล้มอที่มีร้านครบ ทั้งของสวยงาม ของกิน และหนังสือ',
+  items:[
+   {h:'EVEANDBOY',tag:'ความงาม',p:'ร้านเครื่องสำอางและสกินแคร์ที่ชาวบางแสนรอคอย เปิดสาขาแหลมทอง อยู่ชั้น 1 ฝั่งติดถนน'},
+   {h:'Potato Corner',tag:'ของกินเล่น',p:'เฟรนช์ฟรายส์เขย่าผงปรุงรสหลายรสชาติ ซื้อถือเดินเล่นในห้างได้สบาย'},
+   {h:'Subway',tag:'แซนด์วิช',p:'แซนด์วิชที่เลือกขนมปัง ผัก และซอสได้เอง อิ่มเร็วก่อนไปเที่ยวต่อ'},
+   {h:'ซีเอ็ด (SE-ED)',tag:'ร้านหนังสือ',p:'ร้านหนังสือที่นิสิตแวะหาหนังสือเรียน นิยาย และเครื่องเขียน'},
+   {h:'โรงภาพยนตร์',tag:'ดูหนัง',p:'ดูหนังใหม่ได้โดยไม่ต้องเข้าเมือง'}
+  ],
+  note:'EVEANDBOY และ Potato Corner มีข้อมูลยืนยันสาขาแหลมทอง ส่วน Subway และซีเอ็ด มาจากข้อมูลของผู้จัดทำ ร้านในห้างเปลี่ยนได้ ควรเช็คก่อนไป',
+  sources:[['Wongnai: Potato Corner ศูนย์การค้าแหลมทอง บางแสน','https://www.wongnai.com/restaurants/3786833LT-potato-corner-%E0%B8%A8%E0%B8%B9%E0%B8%99%E0%B8%A2%E0%B9%8C%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%84%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%AB%E0%B8%A5%E0%B8%A1%E0%B8%97%E0%B8%AD%E0%B8%87-%E0%B8%9A%E0%B8%B2%E0%B8%87%E0%B9%81%E0%B8%AA%E0%B8%99-pop-up'],['TikTok: EVEANDBOY สาขาแหลมทอง','https://www.tiktok.com/@chonburilove/video/7530945442423508231']]},
+
+ khaolam:{map:'ตลาดหนองมน ชลบุรี',kick:'ตลาดหนองมน · ประวัติ',title:'ตลาดหนองมน ตลาดเก่าแก่ริมสุขุมวิท',
+  intro:'ตลาดเก่าแก่ของชลบุรีที่อยู่ริมถนนสุขุมวิท ใครขับผ่านไปบางแสนหรือพัทยามักแวะที่นี่',
+  items:[
+   {h:'ตลาดเก่าแก่ของชลบุรี',p:'ตั้งอยู่ตำบลแสนสุข อำเภอเมืองชลบุรี ริมถนนสุขุมวิท ทำเลที่เป็นทางผ่านทำให้กลายเป็นจุดแวะซื้อของฝากของคนเดินทาง'},
+   {h:'จากชุมชนหนองมน',p:'ของขึ้นชื่ออย่างข้าวหลามเกิดจากภูมิปัญญาของคนในชุมชนหนองมน ที่ผสมวัฒนธรรมการกินของคนไทยพื้นเมืองกับคนจีน และถ่ายทอดกันแบบปากต่อปาก'},
+   {h:'ของฝากขึ้นชื่อ',p:'ปลาหมึกตากแห้ง กุ้งแห้ง ปลาอินทรีย์ ขนมหม้อแกง หอยจ๊อ และข้าวหลามหนองมน'},
+   {h:'อาหารทะเลด้านหลังตลาด',p:'ด้านหลังตลาดมีโซนอาหารทะเลสดและร้านอาหารให้นั่งกิน'},
+   {h:'มาเช้าได้ของสด',p:'ตลาดเปิดทุกวันตั้งแต่เช้า ถ้ามาเช้าจะได้ข้าวหลามที่เพิ่งเผาเสร็จร้อน ๆ'}
+  ],
+  sources:[['Trip.com: ตลาดหนองมน ตลาดเก่าแก่ จ.ชลบุรี','https://th.trip.com/moments/detail/chon-buri-city-1447070-126299511/'],['ข้าวหลามหนองมน: องค์ความรู้ ภูมิปัญญา (วารสารมนุษยศาสตร์ฯ)','https://so06.tci-thaijo.org/index.php/hsudru/article/view/244345']]},
+
+ beachwalk:{map:'หาดบางแสน ชลบุรี',kick:'ทางเดินริมหาดบางแสน',title:'เที่ยวริมหาดให้สนุกและปลอดภัย',
+  intro:'ทางเดินใต้แนวต้นมะพร้าวที่ยาวเลียบหาด มีของขายและเก้าอี้ผ้าใบให้เช่าตลอดทาง',
+  items:[
+   {h:'เช่าเก้าอี้ ห่วงยาง',p:'ร้านริมหาดมีเก้าอี้ผ้าใบใต้ร่มและห่วงยางให้เช่า ควรถามราคาให้ชัดก่อนนั่ง'},
+   {h:'เล่นน้ำในจุดที่ปลอดภัย',p:'สังเกตธงเตือนและป้ายของเจ้าหน้าที่ โดยเฉพาะวันที่คลื่นลมแรง'},
+   {h:'ช่วยกันรักษาหาด',p:'ทิ้งขยะในถังที่วางไว้ตลอดแนวหาด ทะเลจะได้สวยไปนาน ๆ'}
+  ],sources:[]},
+
+ viewpoint:{map:'จุดชมวิวเขาสามมุข',kick:'จุดชมวิวเขาสามมุข',title:'มองบางแสนจากมุมสูง',
+  intro:'บนเขาสามมุขมีลานชมวิวที่มองเห็นอ่าวบางแสน ยิ่งช่วงแดดใกล้ตกยิ่งสวย',
+  items:[
+   {h:'วิวอ่าวบางแสน',p:'มองเห็นหาดบางแสนทอดยาวและทะเลอ่าวไทยกว้าง ๆ'},
+   {h:'ฝูงลิงแสม',p:'ชาวบ้านเชื่อว่าลิงเป็นบริวารของเจ้าแม่สามมุข ให้อาหารได้เฉพาะของจากแผงขายอาหารลิง และระวังของในมือ'},
+   {h:'มุมถ่ายรูปยอดฮิต',p:'มีตัวอักษรขนาดใหญ่ "Bangsaen Kaosammuk" และจุดถ่ายรูปหลายมุม'},
+   {h:'มาตอนไหนดี',p:'ช่วงพระอาทิตย์ขึ้นหรือตก แสงจะสวยที่สุด และไม่ร้อนเท่าช่วงกลางวัน'}
+  ],
+  sources:[['Wongnai: 20 จุดเช็กอินบางแสน','https://www.wongnai.com/listings/bangsaen']]},
+
+ parkinseat:{map:'ตลาดปาร์คอิน The Park In Market บางแสน',kick:'ลานโคมไม้ไผ่ · ปาร์คอิน',title:'นั่งกินใต้แสงโคมไม้ไผ่',
+  intro:'ซื้อของอร่อยจากร้านในตลาด แล้วมานั่งปิกนิกบนลานหญ้าใต้โคมไม้ไผ่ที่เปิดไฟสว่างตอนกลางคืน',
+  items:[
+   {h:'ซื้อแล้วมานั่ง',p:'เลือกซื้ออาหารจากร้านในตลาด แล้วถือมานั่งกินที่ลานได้เลย'},
+   {h:'บรรยากาศกลางคืน',p:'โคมไม้ไผ่ทรงกลมและไฟส่องทำให้ลานดูอบอุ่น เหมาะกับการนั่งคุยกับเพื่อน'},
+   {h:'มาเร็วได้ที่นั่ง',p:'ช่วงค่ำวันหยุดคนเยอะ ที่นั่งเต็มเร็ว'}
+  ],sources:[]},
+
+ buuhistory:{map:'มหาวิทยาลัยบูรพา บางแสน',kick:'มหาวิทยาลัยบูรพา · ประวัติ',title:'จาก "วศ.บางแสน" สู่มหาวิทยาลัยบูรพา',
+  intro:'มหาวิทยาลัยริมทะเลที่อยู่คู่บางแสนมาเกือบ 70 ปี และเป็นสถาบันอุดมศึกษาแห่งแรกที่ตั้งในส่วนภูมิภาคของไทย',
+  items:[
+   {h:'พ.ศ. 2498 · วิทยาลัยวิชาการศึกษา บางแสน',p:'กระทรวงศึกษาธิการสถาปนาเมื่อวันที่ 8 กรกฎาคม 2498 ที่ถนนลงหาดบางแสน เพื่อผลิตครู คนรุ่นก่อนเรียกสั้น ๆ ว่า "วศ.บางแสน"'},
+   {h:'พ.ศ. 2517 · มศว บางแสน',p:'ได้รับพระราชทานนาม "มหาวิทยาลัยศรีนครินทรวิโรฒ" และยกฐานะเป็นวิทยาเขตบางแสน (29 มิถุนายน 2517)'},
+   {h:'พ.ศ. 2533 · มหาวิทยาลัยบูรพา',p:'แยกเป็นมหาวิทยาลัยของตัวเองตามพระราชบัญญัติมหาวิทยาลัยบูรพา มีผลตั้งแต่ 30 กรกฎาคม 2533'},
+   {h:'รากเหง้าของการผลิตครู',p:'มหาวิทยาลัยเริ่มต้นจากการเป็นสถาบันผลิตครู งานด้านการศึกษาอย่างคณะศึกษาศาสตร์จึงเป็นรากเหง้าที่อยู่คู่มหาวิทยาลัยมาตั้งแต่ปีแรก'},
+   {h:'สัญลักษณ์ของมหาวิทยาลัย',p:'สีประจำมหาวิทยาลัยคือ เทา–ทอง (เทา = ความเจริญทางปัญญา, ทอง = คุณธรรม) และต้นไม้ประจำมหาวิทยาลัยคือ ต้นมะพร้าว'}
+  ],
+  sources:[['คลังปัญญามหาวิทยาลัยบูรพา: ประวัติมหาวิทยาลัย','https://buuir.buu.ac.th/bitstream/1234567890/3672/3/2563_167.pdf'],['วารสาร: สื่อสิ่งพิมพ์กับประวัติ วศ.บางแสน สู่ มศว บางแสน','https://so02.tci-thaijo.org/index.php/BECJournal/article/view/244130']]},
+
+ bangsaen:{map:'หาดบางแสน ชลบุรี',kick:'หาดบางแสน · รู้จักกันก่อน',title:'บางแสน ทะเลใกล้กรุงที่สุด',
+  intro:'จากหมู่บ้านชาวประมงเล็ก ๆ สู่ชายหาดที่คนกรุงเทพฯ ขับรถมาเที่ยวได้ในวันเดียว',
+  items:[
+   {h:'ห่างกรุงเทพฯ ราว 100 กม.',p:'อยู่ตำบลแสนสุข อำเภอเมืองชลบุรี ชายหาดยาวประมาณ 2.5 กิโลเมตร ดูแลโดยเทศบาลเมืองแสนสุข'},
+   {h:'จากหมู่บ้านประมงสู่สถานตากอากาศ',p:'สมัยรัฐบาลจอมพล ป. พิบูลสงคราม ช่วงสงครามโลกครั้งที่ 2 มีการสร้างสถานตากอากาศริมทะเลขึ้นที่บางปูและบางแสน และพอมีถนนสุขุมวิท การเดินทางจากกรุงเทพฯ ก็สะดวกขึ้นมาก'},
+   {h:'ชื่อนี้มาจากตำนานรัก',p:'"แสน" เป็นชื่อหนุ่มในตำนานรักกับ "สามมุข" ชื่อทั้งสองจึงกลายเป็นชื่อหาดบางแสนและเขาสามมุข (กดปุ่มที่ศาลเจ้าพ่อแสนเพื่ออ่านตำนาน)'},
+   {h:'ทะเลใสช่วงหน้าหนาว',p:'ปกติน้ำค่อนข้างขุ่น แต่ช่วงประมาณตุลาคม–กุมภาพันธ์ น้ำจะใสขึ้นจนคนเรียกเล่น ๆ ว่า "มัลดีฟส์บางแสน"'},
+   {h:'วาฬบรูด้า',p:'ในอ่าวไทยแถบนี้มีวาฬบรูด้าออกมาหากินให้เห็นอยู่บ่อย ๆ'},
+   {h:'ประเพณีวันไหล',p:'งานสงกรานต์ของบางแสนจัดหลังวันสงกรานต์ทั่วไป เรียกว่า "วันไหล" คนมาเล่นน้ำกันเต็มถนนเลียบหาด'}
+  ],
+  sources:[['Bang Saen Beach – Wikipedia','https://en.wikipedia.org/wiki/Bang_Saen_Beach']]},
+
+ laemthaen:{map:'แหลมแท่น บางแสน',kick:'แหลมแท่น · โขดหินริมทะเล',title:'แหลมแท่น และเจ้าแม่กวนอิมริมทะเล',
+  intro:'แหลมหินที่ยื่นลงทะเลใกล้หาดบางแสน ไม่มีหาดทรายให้เล่นน้ำ แต่เป็นมุมนั่งรับลมและดูพระอาทิตย์ตกที่คนในพื้นที่ชอบ',
+  items:[
+   {h:'โขดหินยื่นลงทะเล',p:'ทั้งแหลมเป็นโขดหินก้อนใหญ่ มีทางเดินลงไปถึงหินอีกก้อนในทะเล แต่หินลื่น ควรใส่รองเท้าที่เกาะพื้นดีและระวังช่วงคลื่นแรง'},
+   {h:'เจ้าแม่กวนอิมริมทะเล',p:'องค์เจ้าแม่กวนอิมสีขาวตั้งหันหน้าออกทะเล ผู้คนนิยมมากราบไหว้ เชื่อกันว่าท่านช่วยปกปักรักษาคนเดินเรือและชาวประมงให้ออกทะเลอย่างปลอดภัย'},
+   {h:'รู้จักเจ้าแม่กวนอิม',p:'ในคติจีน เจ้าแม่กวนอิมคือพระโพธิสัตว์แห่งความเมตตา ผู้ศรัทธาจำนวนมากจึงงดเนื้อวัว และนิยมถวายดอกไม้ ผลไม้ และของเจแทนของคาว'},
+   {h:'ตกปลาและนั่งเล่น',p:'ช่วงเย็นมีคนมานั่งตกปลาบนโขดหินและสิ่งก่อสร้างเก่าที่ยื่นลงทะเล บนฝั่งมีสวนหย่อมเล็ก ๆ ให้นั่งพัก'},
+   {h:'ฟรี เปิดตลอด',p:'ไม่มีค่าเข้า เปิด 24 ชั่วโมง ช่วงบ่ายแดดร้อน แนะนำให้มาช่วงเย็น ฝั่งตรงข้ามมีร้านอาหารทะเล และวันศุกร์–เสาร์มีถนนคนเดินช่วงค่ำ'}
+  ],
+  sources:[['Wongnai: รีวิวแหลมแท่น','https://www.wongnai.com/reviews/bf4c92c548e74e54809608922aeb32ea'],['Trip.com: สักการะเจ้าแม่กวนอิม ริมทะเลแหลมแท่น','https://th.trip.com/moments/detail/chon-buri-1447070-125797107/']]},
+
+ chonlamark:{map:'สะพานชลมารควิถี ชลบุรี',kick:'สะพานชลมารควิถี · ถนนเลียบทะเล',title:'สะพานเลียบทะเลชลบุรี',
+  intro:'สะพานเลียบชายฝั่งที่หลายคนเรียกติดปากว่า "สะพานเลียบชายทะเลชลบุรี" ขับหรือปั่นแล้วเห็นทะเลทั้งสองฝั่ง',
+  items:[
+   {h:'ตั้งใจจะยาว 17 กิโลเมตร',p:'แผนแรกวางไว้ 17 กม. แต่ได้รับอนุมัติให้สร้างจริงราว 7 กม. และทยอยสร้างเป็นช่วง ๆ'},
+   {h:'เปิดใช้ทีละช่วง',p:'ช่วงที่ 3 เปิดเมื่อ 16 พฤศจิกายน 2559 และช่วงที่ 1 เปิดเมื่อ 14 กันยายน 2560'},
+   {h:'ช่วงน้ำลง',p:'จะเห็นริ้วทรายและกระชังเลี้ยงปลากลางทะเล'},
+   {h:'จุดดูพระอาทิตย์ตกยอดนิยม',p:'มีจุดจอดรถชมวิวและฟู้ดทรัค ยิ่งใกล้ค่ำคนยิ่งเยอะ'}
+  ],
+  sources:[['Postjung: สะพานชลมารควิถี','https://board.postjung.com/1646678']]},
+
+ saen:{map:'ศาลเจ้าพ่อแสน หาดบางแสน',kick:'ศาลเจ้าพ่อแสน · ความเชื่อ',title:'ไหว้เจ้าพ่อแสนริมหาด',
+  intro:'ศาลริมทะเลของ "แสน" ในตำนาน ที่คนบางแสนและนักท่องเที่ยวแวะมากราบไหว้',
+  items:[
+   {h:'ศาลหลังใหม่',p:'เมื่อ 18 กุมภาพันธ์ 2557 เทศบาลเมืองแสนสุขจัดพิธีทำบุญเลี้ยงพระ และอัญเชิญเจ้าพ่อแสนขึ้นประดิษฐานบนศาลหลังใหม่ริมชายหาดบางแสน พร้อมพิธีเบิกเนตร'},
+   {h:'นิยมขอพรเรื่องอะไร',p:'ขอให้เดินทางปลอดภัย การงานราบรื่น โชคลาภ และครอบครัวอยู่เย็นเป็นสุข'},
+   {h:'ไก่ชนแก้บน',p:'รอบศาลมีตุ๊กตาไก่หลากสีวางเรียงเต็มไปหมด เป็นของที่ผู้คนนำมาแก้บนเมื่อสมหวัง'},
+   {h:'วิธีไหว้แบบสุภาพ',p:'แต่งกายสุภาพ จุดธูปตามที่ศาลจัดไว้ บอกชื่อ-นามสกุลและที่มา ขอพรแบบพอดีไม่โลภ แล้วปิดท้ายด้วยการขอบคุณ ถ้าสมหวังก็กลับมาไหว้ขอบคุณอีกครั้ง'},
+   {h:'มารยาทในศาล',p:'ไม่ส่งเสียงดัง และช่วยกันรักษาความสะอาดบริเวณศาล'}
+  ],
+  sources:[['เทศบาลเมืองแสนสุข: ศาลเจ้าพ่อแสน','https://www.saensukcity.go.th/events/715-140218-jaoporsaenshrine.html'],['Lemon8: วิธีไหว้ศาลเจ้าพ่อแสน','https://www.lemon8-app.com/@konrimhad/7390984311161307664?region=th']]},
+
+ sammuk:{map:'ศาลเจ้าแม่เขาสามมุข บางแสน',kick:'ศาลเจ้าแม่เขาสามมุข · การบูชา',title:'ขอพรเจ้าแม่สามมุขอย่างไร',
+  intro:'ศาลเจ้าเก่าแก่ที่เชิงเขาสามมุข เป็นที่เคารพของชาวชลบุรีมาหลายชั่วอายุคน',
+  items:[
+   {h:'ศาลอายุกว่าร้อยปี',p:'เป็นศาลเจ้าเก่าแก่ที่ขึ้นชื่อเรื่องความศักดิ์สิทธิ์มายาวนาน'},
+   {h:'ที่พึ่งของคนทะเลและคนค้าขาย',p:'ชาวประมงและแม่ค้านิยมมาไหว้ขอพรก่อนออกทะเล ศาลนี้จึงขึ้นชื่อเรื่องขอพรด้านการเงิน การค้า และธุรกิจ'},
+   {h:'ของไหว้ที่นิยม',p:'มะพร้าวอ่อน ขนมเปี๊ยะ และผลไม้'},
+   {h:'วิธีขอพร',p:'ไหว้แล้วสวดคาถาบูชาเจ้าแม่สามมุข 1, 3 หรือ 9 จบ แล้วตั้งจิตขอพร'},
+   {h:'แก้บนด้วยประทัดและสร้อยมุก',p:'ผู้ที่สมหวังมักแก้บนด้วยการจุดประทัด และนำสร้อยมุกมาถวายที่องค์เจ้าแม่'},
+   {h:'ว่าวแห่งความรัก',p:'คู่รักนิยมเขียนชื่อตัวเองกับคนรักลงบนว่าวแล้วแขวนถวายไว้ที่ศาล ตามตำนานรักของแสนกับสามมุข'}
+  ],
+  sources:[['ThaiMerit: เจ้าแม่เขาสามมุข','https://www.thaimerit.com/places/234'],['MThai: ศาลเจ้าแม่เขาสามมุข มูความรัก','https://mthai.com/travel/chon-buri/312708.html']]},
+
+ history:{map:'เขาสามมุข บางแสน',kick:'เขาสามมุข · ตำนาน',title:'ตำนานรักของ "สามมุข" กับ "แสน"',
+  intro:'เขาลูกเล็กริมทะเลนี้ผูกอยู่กับชื่อ "บางแสน" มาตั้งแต่สมัยยังเป็นหมู่บ้านชาวประมง',
+  items:[
+   {h:'เรื่องเล่าของคนสองคน',p:'ตำนานพื้นบ้านเล่าถึงหนุ่มสาวชาวชลบุรีชื่อ "แสน" และ "สามมุข" ที่รักกันแต่ไม่สมหวัง สุดท้ายทั้งคู่ตัดสินใจกระโดดหน้าผาลงทะเลไปด้วยกัน'},
+   {h:'กลายเป็นชื่อสถานที่',p:'ชื่อของทั้งสองจึงกลายเป็นชื่อ "เขาสามมุข" และ "หาดบางแสน" ที่ยังใช้กันจนถึงทุกวันนี้'},
+   {h:'ตำนานมีหลายสำนวน',p:'รายละเอียดของเรื่องต่างกันไปตามผู้เล่า บางสำนวนเล่าว่าเป็นความรักต่างฐานะที่ผู้ใหญ่ไม่ยอมรับ'},
+   {h:'ไหว้คู่กันทั้งสองศาล',p:'เพราะเป็นตำนานคู่รัก คนที่มาขอพรเรื่องความรักจึงนิยมไหว้ทั้งศาลเจ้าแม่เขาสามมุขและศาลเจ้าพ่อแสน (ดูรายละเอียดที่ปุ่มของแต่ละศาล)'}
+  ],
+  sources:[['Bang Saen Beach – Wikipedia','https://en.wikipedia.org/wiki/Bang_Saen_Beach'],['ศิลปวัฒนธรรม: ตำนานเขาสามมุขและหาดบางแสน','https://www.silpa-mag.com/history/article_148239']]},
+
+ nongmon:{map:'ตลาดหนองมน ชลบุรี',kick:'ตลาดหนองมน · ของฝาก',title:'ของฝากขึ้นชื่อตลาดหนองมน',
+  intro:'ตลาดของฝากเก่าแก่ริมถนนสุขุมวิท ใกล้บางแสน ใครผ่านชลบุรีมักแวะซื้อของติดมือกลับบ้าน',
+  items:[
+   {h:'ข้าวหลาม',p:'ของขึ้นชื่อที่สุดของหนองมน ข้าวเหนียวมูนกะทิใส่กระบอกไม้ไผ่แล้วเผา มีหลายไส้ เช่น ถั่วดำ เผือก สังขยา'},
+   {h:'อาหารทะเลแห้ง',p:'ปลาหมึกแห้ง กุ้งแห้ง ปลาแห้ง และปลาเค็ม จากเมืองประมงชลบุรี แขวนเป็นถุงยาวเต็มหน้าร้าน'},
+   {h:'ขนมไทยและของกินเล่น',p:'ขนมหวาน ทองม้วน ขนมเปี๊ยะ และขนมขบเคี้ยวบรรจุถุงหลายร้อยแบบ'},
+   {h:'ศาลเจ้าติดตลาด',p:'ข้างตลาดมีศาลเจ้าจีนสองชั้นที่ประดิษฐานเจ้าแม่กวนอิม เป็นที่เคารพของชาวหนองมนและบางแสน'}
+  ],
+  note:'ร้านในตลาดมีหลายเจ้า ราคาและไส้ข้าวหลามแตกต่างกันไป ควรชิมก่อนซื้อ',
+  sources:[['Trip.com: พระโพธิสัตว์กวนอิม หนองมน','https://th.trip.com/moments/detail/chon-buri-city-1447070-126196198/']]},
+
+ cafes:{maps:true,kick:'หาดบางแสน · ร้านแนะนำ',title:'คาเฟ่และร้านริมทะเลน่าแวะ',
+  intro:'ร้านวิวทะเลรอบหาดบางแสนและเขาสามมุข เหมาะนั่งชิลระหว่างทาง',
+  items:[
+   {h:'Sea You Soon Seafood & Cafe x Bar',tag:'ซีฟู้ด · คาเฟ่',p:'ซีฟู้ดสด มีโซนคาเฟ่แยก',m:'บางแสนล่าง ซ.16 · ทุกวัน 07:00–24:00'},
+   {h:'Borabora Bangsaen',tag:'คาเฟ่ · ร้านอาหาร',p:'ตกแต่งสไตล์ฮาวาย มีต้นไม้ริมหาดส่วนตัวเป็นจุดถ่ายรูป',m:'ถ.บางแสนล่าง · ทุกวัน 09:30–24:00'},
+   {h:'Seafood Club Bangsaen',tag:'ซีฟู้ด · บาร์',p:'บรรยากาศสไตล์บาหลี มีชิงช้าริมทะเล แนะนำไปช่วงเย็น',m:'ถ.บางแสนล่าง · จ.–ศ. 11:30–23:00, ส.–อา. 10:00–23:00'},
+   {h:'Rico Beach Cafe and Restaurant',tag:'คาเฟ่',p:'สไตล์ฮาวาย มีดาดฟ้าวิวทะเลและผนังวาดภาพ',m:'ซ.8 แสนสุข'},
+   {h:'Hill Mare\'',tag:'คาเฟ่วิวเขา',p:'ร้านโทนขาว วิว 180 องศา อยู่รอบเขาสามมุข',m:'ศ.–อา. 11:00–23:00'},
+   {h:'Bluefin Beach Bar & Restaurant',tag:'ซีฟู้ด · ดนตรีสด',p:'นั่งดูพระอาทิตย์ตกพร้อมดนตรีสด',m:'ถ.รอบเขาสามมุข · ทุกวัน 11:00–24:00'}
+  ],
+  note:'ข้อมูลเวลาเปิดอ้างอิงบทความปี 2566 อาจเปลี่ยนไปแล้ว ควรเช็คเพจของร้านก่อนไป',
+  sources:[['Chillpainai: 10 ร้านอาหารอร่อย บางแสน','https://chillpainai.com/scoop/15420']]},
+
+ burapha:{map:'พิพิธภัณฑ์สัตว์น้ำบางแสน สถาบันวิทยาศาสตร์ทางทะเล',kick:'มหาวิทยาลัยบูรพา · น่าทึ่ง',title:'เรื่องน่าทึ่งที่ ม.บูรพา',
+  intro:'มหาวิทยาลัยติดทะเลที่เปิดให้คนทั่วไปเข้ามาเที่ยวได้ ไฮไลต์คือพิพิธภัณฑ์สัตว์น้ำบางแสน',
+  items:[
+   {h:'เริ่มจากวิทยาลัยครู',p:'ก่อตั้งเมื่อ พ.ศ. 2498 ในชื่อ "วิทยาลัยวิชาการศึกษาบางแสน" ต่อมาเป็น มศว บางแสน ก่อนยกฐานะเป็นมหาวิทยาลัยบูรพาในปี พ.ศ. 2533'},
+   {h:'พิพิธภัณฑ์สัตว์น้ำบางแสน',p:'ดูแลโดยสถาบันวิทยาศาสตร์ทางทะเล เปิดตั้งแต่ 23 พฤษภาคม 2528 แบ่งโซนปลาเศรษฐกิจ ปลาสวยงาม และแมงกะพรุน'},
+   {h:'โครงกระดูกวาฬบรูด้า',p:'ตั้งต้อนรับอยู่ตรงทางเข้าพิพิธภัณฑ์ เป็นจุดถ่ายรูปที่ใครมาก็ต้องหยุด'},
+   {h:'อุโมงค์ใต้น้ำยาว 37 เมตร',p:'โซนใหม่เปิดเมื่อ 5 ธันวาคม 2565 มีตู้ทรงกระบอกสูงราว 8 เมตร และอุโมงค์อะคริลิกให้เดินลอดใต้ฝูงปลา'},
+   {h:'ตู้ใหญ่ปลาแนวปะการัง',p:'มีปลาตัวใหญ่อย่างปลาหมอทะเล ปลาฉลามเสือดาว และปลากะมง'}
+  ],
+  note:'พิพิธภัณฑ์สัตว์น้ำเปิดอังคาร–อาทิตย์ 09:00–16:00 (ปิดวันจันทร์) ค่าเข้าคนไทย ผู้ใหญ่ 80 บาท เด็ก 40 บาท',
+  sources:[['The Institute of Marine Science, Burapha University – Wikipedia','https://en.wikipedia.org/wiki/The_Institute_of_Marine_Science,_Burapha_University'],['วารสาร: ประวัติ วศ.บางแสน สู่ มศว บางแสน','https://so02.tci-thaijo.org/index.php/BECJournal/article/view/244130']]},
+
+ wanna:{map:'Wanna Park หาดวอนนภา บางแสน',kick:'หาดวอนนภา · ตลาดเย็น',title:'ตลาดวันนาปาร์ค (Wanna Park)',
+  intro:'ตลาดนัดเปิดท้ายและถนนคนเดินริมหาดวอนนภา บรรยากาศโล่ง เห็นวิวทะเลตอนพระอาทิตย์ตก',
+  items:[
+   {h:'ที่ตั้ง',p:'หาดวอนนภา บางแสน ซอย 1 ต.แสนสุข อ.เมืองชลบุรี'},
+   {h:'มีอะไรขาย',p:'เสื้อผ้าวินเทจและของมือสอง ของเล่น งานแฮนด์เมด ของกินทั้งอาหารอีสาน ข้าวผัด ของทอด แมลงทอด และขนม'},
+   {h:'เวลา',p:'ร้านเริ่มตั้งราว 17:00 และขายถึงประมาณเที่ยงคืน'},
+   {h:'ที่จอดรถและห้องน้ำ',p:'ลานจอดเสียค่าบริการราว 50 บาท ห้องน้ำ 5–10 บาท'}
+  ],
+  note:'วันเปิดตลาดแต่ละแหล่งข้อมูลไม่ตรงกัน บางแหล่งบอกพุธ–พฤหัส บางแหล่งบอกทุกวัน ควรเช็คเพจ "WannaPark Wonnapha" ก่อนไป',
+  sources:[['Wongnai: รีวิว Wanna Park','https://www.wongnai.com/reviews/7e8b5a7aa3714169a43644e95b5392f7'],['Tripniceday: Wanna Park','https://www.tripniceday.com/place/wanna-park']]},
+
+ parkininfo:{map:'ตลาดปาร์คอิน The Park In Market บางแสน',kick:'ตลาดปาร์คอิน · ก่อนเข้าตลาด',title:'ตลาดปาร์คอิน (The Park In Market)',
+  intro:'ตลาดกลางคืนและถนนคนเดินที่นิสิตบูรพาแวะกันบ่อย ของกินเยอะ มีที่นั่งให้นั่งกินในตลาด',
+  items:[
+   {h:'ที่ตั้ง',p:'อยู่ในซอยข้างห้างแหลมทอง บางแสน เข้าไปจากปากซอยราว 400–500 เมตร ตลาดอยู่ทางขวามือ'},
+   {h:'วันและเวลา',p:'เปิดวันพฤหัสบดี เสาร์ และอาทิตย์ เริ่มประมาณ 17:00'},
+   {h:'มีอะไรบ้าง',p:'ของกินทั้งคาวและหวาน เครื่องดื่ม ของกินเล่น และมีโซนที่นั่ง'},
+   {h:'ที่จอดรถและห้องน้ำ',p:'ที่จอดรถกว้าง ห้องน้ำสะอาด แต่อยู่แยกจากตัวตลาด ต้องเดินไปนิดหนึ่ง'}
+  ],
+  note:'ข้อมูลจากรีวิวผู้ใช้ Wongnai วันเวลาอาจเปลี่ยนได้ ควรเช็คก่อนไป',
+  sources:[['Wongnai: The Park In Market','https://www.wongnai.com/attractions/384677nb-the-park-in-market/reviews']]},
+
+ parkin:{maps:false,kick:'ในตลาดปาร์คอิน',title:'ของกิน & ร้านเสื้อผ้าในตลาด',
+  intro:'เดินในตลาดแล้วแวะอะไรดี ทั้งของกินและแฟชั่นมีให้เลือกเต็มไปหมด',
+  items:[
+   {h:'ไก่ทอดซอสน้ำปลา',tag:'ของกิน',p:'ไก่ทอดกรอบคลุกซอสน้ำปลาหวาน ๆ เค็ม ๆ ร้านขายดีที่คนต่อคิว'},
+   {h:'เต้าหู้ทอด',tag:'ของกิน',p:'ของกินเล่นราคาสบาย ถือกินระหว่างเดินได้'},
+   {h:'ยำทะเล',tag:'ของกิน',p:'ยำรสจัดใส่อาหารทะเล เข้ากับบรรยากาศเมืองทะเล'},
+   {h:'ขนมหวาน & โยเกิร์ตกรีก',tag:'ของหวาน',p:'มีทั้งขนมหวานหลายแบบและโยเกิร์ตกรีกท็อปปิ้งผลไม้'},
+   {h:'โซน EAT\'N PARK',tag:'ที่นั่งกิน',p:'โซนศูนย์อาหารที่มีที่นั่งพอ บรรยากาศทันสมัย'},
+   {h:'เสื้อผ้าวินเทจมือสอง',tag:'แฟชั่น',p:'จุดเด่นของตลาด มีเสื้อผ้ามือสองสไตล์ญี่ปุ่นและวินเทจให้คุ้ยเยอะมาก'},
+   {h:'หมวก ยีนส์ กระเป๋า',tag:'แฟชั่น',p:'หมวกไหมพรม หมวกแคมป์ หมวกสไตล์ยุค 2000 กางเกงยีนส์ กระเป๋า รองเท้า และเครื่องประดับ'},
+   {h:'เคสมือถือ & ร้านกันคิ้ว',tag:'อื่น ๆ',p:'มีร้านเคสโทรศัพท์ และร้านกันคิ้วที่คิวยาวจนควรจองล่วงหน้า'},
+   {h:'ดนตรีสด',tag:'บรรยากาศ',p:'บางคืนมีดนตรีสดและคอนเสิร์ตที่ลานเวที'}
+  ],
+  note:'ร้านแผงลอยในตลาดหมุนเวียนบ่อยและไม่ค่อยมีชื่อร้านตายตัว บางร้านไม่รับบัตรหรือแอป ควรเตรียมเงินสด',
+  sources:[['Lemon8: ตลาดปาร์คอิน บางแสน มีอะไรบ้าง','https://www.lemon8-app.com/experience/park-in-bangsaen?region=th']]}
+};
+
+/* ===================================================================== */
+(function(){
+const $=id=>document.getElementById(id);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const N=SCENES.length;let OV=.3;   // scenes overlap; the next one bleeds in like wet watercolor
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const world=$('world');
+
+SCENES.forEach((s,i)=>{
+  const el=document.createElement('div');el.className='scene';
+  el.innerHTML=`<img class="bg" src="images/${s.key}.jpg" alt="${esc(s.t)}" ${i>2?'loading="lazy"':''}><div class="signwrap" aria-hidden="true"></div><div class="pinwrap"></div><div class="rim" aria-hidden="true"></div>`;
+  // shop signs drawn as real text on top of the painting (AI can't write Thai well)
+  (s.signs||[]).forEach(g=>{const d=document.createElement('div');d.className='sign';
+    Object.assign(d.style,{left:g.x*100+'%',top:g.y*100+'%',width:g.w*100+'%',height:g.h*100+'%',color:g.c||'#fff',fontSize:(g.s||3)+'cqh',fontFamily:g.f||'',transform:g.r?`rotate(${g.r}deg)`:''});
+    d.innerHTML=g.t.split('|').map(esc).join('<br>');el.querySelector('.signwrap').appendChild(d);});
+  if(s.pin){
+    const b=document.createElement('button');b.type='button';b.className='pin';
+    b.style.left=(s.pin.x*100)+'%';b.style.top=(s.pin.y*100)+'%';
+    b.innerHTML=`<span class="dot" aria-hidden="true">✦</span><span class="lbl">${esc(s.pin.label)}</span>`;
+    b.onclick=()=>openPanel(s.pin.panel,b);
+    el.querySelector('.pinwrap').appendChild(b);
+  }
+  world.appendChild(el);
+});
+const scenesEl=[...world.children];
+
+// credits from all panel sources
+$('makers').innerHTML=MAKERS.map(m=>`<li>${esc(m)}</li>`).join('');
+const seen=new Set(),src=[];
+Object.values(PANELS).forEach(P=>(P.sources||[]).forEach(([t,u])=>{if(!seen.has(u)){seen.add(u);src.push(`<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a></li>`);}}));
+$('credits').innerHTML=src.join('');
+
+let INTRO=0,vw,vh,SW,STEP,riderX,travel,base,total,keys=[];
+function layout(){
+  vw=innerWidth;vh=innerHeight;
+  SW=Math.max(vh*2,vw*1.12);OV=Math.min(.3,vw*.7/SW);STEP=SW*(1-OV);
+  scenesEl.forEach((el,i)=>{el.style.left=(i*STEP)+'px';el.style.width=SW+'px';});
+  world.style.width=((N-1)*STEP+SW)+'px';
+  riderX=vw*(vw<700?.36:.3);
+  travel=Math.max(1,(N-1)*STEP+SW-vw);   // stop when the last scene fills the screen
+  // walk-in scenes pause the sideways scroll while we walk into the picture
+  // each place: a long, slow "stay" (look around) then a short, fast "ride" to the next place
+  // camera range while "staying" at scene i (always a little drift so a vehicle change can happen mid-stay)
+  const stayAB=i=>{let a=i*STEP+SW*.04,b=i*STEP+SW*.96-vw;const m=vw*.05;
+    if(b-a<m*2){const c=i*STEP+SW/2-vw/2;a=c-m;b=c+m;}
+    return[clamp(a,0,travel),clamp(b,0,travel)];};
+  keys=[];let sp=0;const mid=[];
+  for(let i=0;i<N;i++){
+    if(SCENES[i].travel){                      // pass straight through: extend the previous ride
+      const k=keys[keys.length-1],add=vh*1.1;k.s1+=add;sp+=add;k.travel=(k.travel||0)+1;continue;}
+    const[a,b]=stayAB(i);mid[i]=(a+b)/2;
+    const stay=vh*2.1+(b-a)*1.4;
+    keys.push({s0:sp,s1:sp+stay,c0:a,c1:b,stay:true});sp+=stay;
+    if(i<N-1){let j=i+1;while(j<N-1&&SCENES[j].travel)j++;const na=stayAB(j)[0],ride=vh*.8;
+      keys.push({s0:sp,s1:sp+ride,c0:b,c1:na,stay:false,to:j});sp+=ride;}
+  }
+  total=sp;window.__dbg={keys,total,SCENES,parts:()=>parts};
+  INTRO=vh*3.4;document.body.style.height=(total+vh+INTRO)+'px';
+  base=vh*.94;
+  $('rider').style.top=base+'px';
+  // where the vehicle changes: in the middle of the stop (so you SEE the vehicle arrive, then get off / on),
+  // or right at the seam of a road scene (hidden by the motion blur) so you are already riding on the road
+  const at=i=>SCENES[i].travel?i*STEP+SW*OV*.5:mid[i]+riderX;
+  // when each scene's paint bleeds in: from the end of the previous stop to the start of this one
+  const OVW=SW*OV,Mw=SW*3;
+  scenesEl.forEach((el,k)=>{el._t=-1;el.style.maskSize=el.style.webkitMaskSize=`${Mw}px 100%, ${SW}px 100%`;
+    const rim=el.querySelector('.rim');rim.style.backgroundSize=`${Mw}px 100%`;
+    if(k===0){el._r=null;return;}
+    let c0=SCENES[k-1].travel?k*STEP+OVW-vw:stayAB(k-1)[1], c1=SCENES[k].travel?k*STEP:stayAB(k)[0];
+    if(c1<c0+vw*.2)c1=c0+vw*.2;
+    el._r={c0,c1,f0:OVW-SW*.024,f1:-SW*.14,Mw,rim};});
+  segs.forEach(g=>{g.start=g.from===0?-1e9:at(g.from);g.end=g.to>=N?1e12:at(g.to);g.h=0;});
+  focusFor=-1;
+}
+
+let cur=0,sCur=0,lastCh=-1,dive=null,diveH=0,focusFor=-1;
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2, clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+// scroll position -> sideways position, plus which walk-in is playing
+function mapScroll(sv){for(const k of keys){if(sv<=k.s1){const t=clamp((sv-k.s0)/(k.s1-k.s0),0,1);const e=k.stay?t:t*t*t*(t*(t*6-15)+10);return{cur:k.c0+(k.c1-k.c0)*e,d:null,h:0};}}const k=keys[keys.length-1];return{cur:k?k.c1:0,d:null,h:0};}
+// group consecutive scenes with the same mode into one leg of the trip, one sprite per leg
+const segs=[];
+SCENES.forEach((sc,i)=>{const m=sc.mode||'walk';if(segs.length&&segs[segs.length-1].mode===m)segs[segs.length-1].to=i+1;else segs.push({mode:m,from:i,to:i+1});});
+segs.forEach(g=>{const V=VEHICLES[g.mode];const im=new Image();im.src=V.src;im.alt='';im.className=V.cls;g.el=im;g.sh=document.createElement('div');g.sh.className='shadow';$('rider').appendChild(g.sh);$('rider').appendChild(im);if(V.empty){const pre=new Image();pre.src=V.empty;}});
+let diveA=0;
+function along(key,def,wx){const t=(wx-SW/2)/STEP,i=Math.floor(t),f=t-i;const a=SCENES[clamp(i,0,N-1)][key]??def,b=SCENES[clamp(i+1,0,N-1)][key]??def;const e=f*f*(3-2*f);return a+(b-a)*clamp(e,0,1);}
+function render(){
+  world.style.transform=`translate3d(${-cur}px,0,0)`;
+  // ---- walk-in: zoom the scene toward its vanishing point, character walks away from us ----
+  const F=$('focus'),Z=F.firstElementChild,B=$('back');
+  if(dive){
+    const sc=SCENES[dive.i],vp=sc.dive,h=diveH,e=ease(h);
+    if(focusFor!==dive.i){
+      Z.innerHTML='';const src=scenesEl[dive.i];
+      Z.appendChild(src.querySelector('img.bg').cloneNode());Z.appendChild(src.querySelector('.signwrap').cloneNode(true));
+      Z.style.transformOrigin=`${vp.x*100}% ${vp.y*100}%`;focusFor=dive.i;
+    }
+    const left=dive.i*STEP-cur;
+    F.style.left=left+'px';F.style.width=SW+'px';
+    diveA=clamp(h/.07,0,1)*(1-clamp((h-.9)/.1,0,1));
+    F.style.opacity=diveA;
+    Z.style.transform=`scale(${1+.6*e})`;
+    // vanishing point on screen
+    const vx=left+((vp.x-.5)*1.08+.5)*SW, vy=((vp.y-.5)*1.08+.5)*vh;
+    const H0=vh*.2*(sc.scale||1), x=riderX+(vx-riderX)*e, y=base-(base-vy)*.16*e;
+    B.style.height=(H0*(1-.12*e))+'px';
+    const bw=B.offsetWidth||H0*.45;
+    B.style.left=(x-bw/2)+'px';B.style.bottom=(base-y)+'px';
+    B.style.opacity=clamp(h/.09,0,1)*(1-clamp((h-.86)/.1,0,1));
+  }else{diveA=0;F.style.opacity=0;B.style.opacity=0;}
+  const wx=cur+riderX;
+  const ch=Math.max(0,Math.min(N-1,Math.floor((wx+SW*OV*.5)/STEP)));
+  segs.forEach(g=>{
+    const V=VEHICLES[g.mode],el=g.el,w=el.offsetWidth||vh*.3;
+    let x,on=true,riding=false;
+    if(wx<g.start){                         // not started yet
+      if(V.arrive&&g.start-wx<SW*.45){x=riderX-(g.start-wx)*1.6;}   // vehicle drives up from behind
+      else on=false;
+    }else if(wx<g.end){x=riderX;riding=true;}    // this is how we travel now
+    else{                                    // left behind
+      if(V.empty||g.mode==='bike'){x=riderX-(wx-g.end);}  // parked vehicle scrolls away
+      else on=false;
+    }
+    const want=((wx>=g.end||wx<g.start)&&V.empty)?V.empty:V.src;
+    if(el.getAttribute('src')!==want)el.setAttribute('src',want);
+    // a bike left behind: hide the rider by fading (we only have a ridden-bike picture)
+    const sceneNow=SCENES[Math.max(0,Math.min(N-1,Math.floor((wx+SW*OV*.5)/STEP)))];
+    if(!riding&&sceneNow.indoor)on=false;            // no cars inside the mall or market
+    const want_h=vh*V.h*along('p',.15,wx);
+    if(riding)g.ph=along('p',.15,wx);
+    if(Math.abs((g.h||0)-want_h)>1){g.h=want_h;el.style.height=want_h+'px';}
+    const vis=on&&x>-w&&x<vw+w;
+    el.style.opacity=vis?(wx>=g.end&&g.mode==='bike'?0:1)*(riding&&dive?1-diveA:1):0;
+    if(vis)el.style.left=(x-w*V.anchor)+'px';
+    g.sh.style.opacity=el.style.opacity;if(vis){g.sh.style.left=(x-w*V.anchor+w*.04)+'px';g.sh.style.width=(w*.92)+'px';}
+    el.classList.toggle('parked',!riding);
+  });
+
+  if(ch!==lastCh){
+    const s=SCENES[ch],act=$('act');
+    if(s.pin){act.textContent=s.pin.label;act.onclick=()=>openPanel(s.pin.panel,act);}
+    act.classList.toggle('show',false);
+    lastCh=ch;
+  }
+  const gv=along('g',0,wx),lv=along('light',1,wx);
+  $('grade').style.opacity=gv.toFixed(3);
+  $('rider').style.filter=`brightness(${(lv*(1-gv*.1)).toFixed(3)}) sepia(${(gv*.35).toFixed(3)}) saturate(${(.95+gv*.15).toFixed(3)})`;
+  const p=sCur/total;
+  $('hint').style.opacity=0;
+  const done=p>.985;
+  $('end').classList.toggle('show',done);
+  $('act').style.visibility=done?'hidden':'visible';
+}
+/* ---------- ambient movement: leaves, birds, sea glints, fireflies ---------- */
+const cv=$('fx'),cx=cv.getContext('2d'),cvb=$('fxb'),cb=cvb.getContext('2d');
+const CAR=[['images/car.png',.95,0],['images/truck-full.png',1.25,0],['images/moto.png',.9,0],['images/win-empty.png',.9,1],['images/car.png',.95,0]].map(([u,h,flip])=>{const im=new Image();im.src=u;im._h=h;im._flip=flip;return im;});let parts=[],lastCur=0,fxT=0;
+function sizeFx(){const d=Math.min(devicePixelRatio||1,2);[[cv,cx],[cvb,cb]].forEach(([c,g])=>{c.width=innerWidth*d;c.height=innerHeight*d;g.setTransform(d,0,0,d,0,0);});}
+const LEAF=['#7FA34E','#A9B85A','#C9A443','#8E7A3A','#6E8F44'],DRY=['#C49A4A','#B07A3A','#D8B46A','#9C6A34'],PET=['#E9A2B4','#F2C6CF','#D9787F'];
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function spawn(kind,arg,si){
+  const W=innerWidth,H=innerHeight,sl=si*STEP-cur;   // sl: where this scene starts on screen
+  if(kind==='pigeons')kind='birds';
+  if(kind==='flock'){for(let q=0;q<3;q++)spawn('birds',arg,si);return;}
+  const SH=H/800;
+  if(kind==='confetti'){parts.push({k:'conf',x:rnd(0,W),y:-10,vx:rnd(-20,20),vy:rnd(50,90)*SH,r:rnd(0,6),vr:rnd(-6,6),s:rnd(7,12)*SH,ph:rnd(0,6),c:['#E4574A','#F2C94C','#3B6FB0','#2E9C8A','#EE8FB6','#FFFFFF','#9B6BD6'][Math.random()*7|0],life:1});return;}
+  if(kind==='fountain'){const[xr,yv]=arg.split(':'),[x0,x1]=xr.split('-').map(Number);   // tall arcing jets with mist
+    for(let q=0;q<4;q++){const x=sl+rnd(x0,x1)*SW;parts.push({k:'drop',x,y:+yv*H,vx:rnd(-40,40),vy:rnd(-260,-170)*SH,s:rnd(1.4,2.8)*SH,t:0,life:1,g:420*SH});}return;}
+  if(kind==='caps'){if(Math.random()<.3)return;const x=sl+rnd(.25,.75)*SW,y=H*rnd(.62,.72);   // a class tosses their caps
+    for(let q=0;q<rnd(7,12);q++)parts.push({k:'cap',x:x+rnd(-90,90)*SH,y,vx:rnd(-60,60)*SH,vy:-rnd(380,560)*SH,r:rnd(0,6),vr:rnd(-5,5),s:rnd(10,15)*SH,t:0,life:1,g:330*SH});return;}
+  if(kind==='fish'){const y0=rnd(.18,.55)*H,dir=Math.random()<.5?1:-1,c=[['#F28C38','#FFF3E0'],['#3FA7D6','#E8F7FF'],['#F2C14E','#5B3A1E'],['#E85D75','#FFE3E8']][Math.random()*4|0];
+    for(let q=0;q<rnd(6,11);q++)parts.push({k:'fish',x:dir>0?-40-q*rnd(20,45):W+40+q*rnd(20,45),y:y0+rnd(-40,40)*SH,vx:dir*rnd(70,110)*SH,ph:rnd(0,6),s:rnd(14,21)*SH,c,life:1});return;}
+  if(kind==='balloons'){parts.push({k:'balloon',x:sl+rnd(.45,.95)*SW,y:H*.62,vy:-rnd(45,75)*SH,ph:rnd(0,6),s:rnd(18,27)*SH,c:['#E4574A','#F2C94C','#3B6FB0','#2E9C8A','#EE8FB6','#FFFFFF'][Math.random()*6|0],life:1});return;}
+  if(kind==='doves'){const n=(Math.random()*4|0)+3,y0=rnd(.1,.32)*H;for(let i=0;i<n;i++)parts.push({k:'bird',dove:true,x:-30-i*rnd(20,40),y:y0+rnd(-25,25),vx:rnd(60,85),vy:rnd(-6,2),s:rnd(8,11)*SH,ph:rnd(0,6.3),life:1});return;}
+  if(kind==='soap'){parts.push({k:'soap',x:rnd(.05,.9)*W,y:H*rnd(.55,.85),vx:rnd(-10,25),vy:-rnd(15,35)*SH,ph:rnd(0,6),s:rnd(14,34)*SH,t:0,d:rnd(6,11),life:1});return;}
+  if(kind==='skylant'){parts.push({k:'skylant',x:rnd(.05,.95)*W,y:H*rnd(.75,1.02),vx:rnd(-6,10),vy:-rnd(22,40)*SH,ph:rnd(0,6),s:rnd(15,24)*SH,t:0,life:1});return;}
+  if(kind==='smoke'&&arg){parts.push({k:'smoke',x:sl+(+arg+rnd(-.04,.04))*SW,y:.62*H,vx:rnd(-4,8),vy:rnd(-24,-14),s:rnd(10,18)*SH,t:0,d:rnd(5,8),life:1});return;}
+  if(kind==='petals'&&Math.random()<.5){/* fall in from the flowering trees */}
+  if(kind==='clouds'){parts.push({k:'cloud',x:-W*.3,y:rnd(.04,.22)*H,vx:rnd(10,22),s:rnd(.12,.22)*H,life:1,a:rnd(.25,.45)});return;}
+  if(kind==='butterflies'){parts.push({k:'fly2',x:rnd(0,W),y:rnd(.45,.8)*H,vx:rnd(-30,30),vy:rnd(-12,6),s:rnd(5,8)*H/800,ph:rnd(0,6.3),c:['#F2C14E','#F7F0E0','#E58A6B','#8FB8DE'][Math.random()*4|0],t:0,d:rnd(6,10),life:1});return;}
+  if(kind==='spray'){const[xr,yv]=arg.split(':'),[x0,x1]=xr.split('-').map(Number);
+    for(let q=0;q<3;q++)parts.push({k:'drop',x:sl+rnd(x0,x1)*SW,y:+yv*H,vx:rnd(-14,14),vy:rnd(-70,-40),s:rnd(1.2,2.4)*H/800,t:0,life:1});return;}
+  if(kind==='bubbles'){parts.push({k:'bub',x:sl+rnd(.4,.66)*SW,y:rnd(.55,.7)*H,vx:rnd(-4,4),vy:rnd(-30,-16),s:rnd(2,5)*H/800,t:0,d:rnd(3,6),ph:rnd(0,6.3),life:1});return;}
+  if(kind==='steam'){parts.push({k:'smoke',x:rnd(.1,.9)*W,y:rnd(.45,.6)*H,vx:rnd(-3,3),vy:rnd(-14,-8),s:rnd(8,14)*H/800,t:0,d:rnd(3,5),life:1,col:'#F6F1E6'});return;}
+  if(kind==='glints'||kind==='twinkle'){parts.push({k:'spark',x:rnd(0,W),y:rnd(.15,.6)*H,s:rnd(1.4,2.4)*H/800,t:0,d:rnd(1.8,3.2),life:1,star:true});return;}
+  if(kind==='lanterns'){parts.push({k:'fly',x:rnd(0,W),y:rnd(.2,.65)*H,vx:0,vy:0,s:rnd(6,11)*H/800,t:0,d:rnd(1.5,3),ph:0,life:1,warm:true});return;}
+  if(kind==='kites'){parts.push({k:'kite',x:rnd(.1,.9)*W,y:rnd(.08,.3)*H,s:rnd(14,22)*H/800,ph:rnd(0,6.3),t:0,d:rnd(8,14),c:['#E4574A','#F2C94C','#3B6FB0','#2E9C8A'][Math.random()*4|0],life:1});return;}
+  if(kind==='traffic'){if(SCENES[clamp(Math.floor((cur+riderX+SW*OV*.5)/STEP),0,N-1)].indoor)return;if(parts.some(q=>q.k==='car'))return;   // one vehicle at a time, never a wall of cars
+    Music.passBy();const night=along('light',1,cur+riderX)<.85,im=CAR[Math.random()*CAR.length|0];
+    parts.push({k:'car',im,x:W+120,y:base+vh*.05,vx:-rnd(260,400),h:along('p',.2,cur+riderX)*vh*im._h*.95,night,life:1,back:true});return;}
+  if(kind==='leaves'||kind==='dryleaves'||kind==='petals'){const pal=kind==='dryleaves'?DRY:kind==='petals'?PET:LEAF;
+    parts.push({k:'leaf',x:rnd(-.1*W,1.1*W),y:Math.random()<.5?rnd(-.05,.6)*H:-20,vx:rnd(-12,30),vy:rnd(40,80),r:rnd(0,6.3),vr:rnd(-1.6,1.6),s:(Math.random()<.2?rnd(16,24):rnd(kind==='petals'?6:8,kind==='petals'?10:15))*H/800,c:pal[Math.random()*pal.length|0],ph:rnd(0,6.3),life:1});}
+  else if(kind==='birds'||kind==='gulls'){const n=kind==='gulls'?(Math.random()<.5?1:3):(Math.random()*4|0)+2,y0=rnd(.06,.3)*H,dir=Math.random()<.7?1:-1;
+    for(let i=0;i<n;i++)parts.push({k:'bird',gull:kind==='gulls',x:dir>0?-30-i*rnd(18,40):W+30+i*rnd(18,40),y:y0+rnd(-18,18),vx:dir*rnd(55,90),vy:rnd(-4,4),s:(kind==='gulls'?rnd(7,11):rnd(4,7))*H/800,ph:rnd(0,6.3),life:1});}
+  else if(kind==='sparkle'){parts.push({k:'spark',x:rnd(0,W),y:(+arg+rnd(-.03,.03))*H,s:rnd(1.2,2.2)*H/800,t:0,d:rnd(1.6,3),life:1});}
+  else if(kind==='fireflies'){parts.push({k:'fly',x:rnd(0,W),y:rnd(.25,.8)*H,vx:rnd(-8,8),vy:rnd(-10,-2),s:rnd(2.4,4.2)*H/800,t:0,d:rnd(3,6),ph:rnd(0,6.3),life:1});}
+  else if(kind==='motes'){parts.push({k:'mote',x:rnd(0,W),y:rnd(.1,.7)*H,vx:rnd(-4,4),vy:rnd(-5,3),s:rnd(1,2.2)*H/800,t:0,d:rnd(4,8),life:1});}
+  else if(kind==='smoke'){parts.push({k:'smoke',x:rnd(.45,.75)*W,y:.78*H,vx:rnd(-4,6),vy:rnd(-18,-10),s:rnd(14,24)*H/800,t:0,d:rnd(5,8),life:1});}
+}
+const OUTDOOR=new Set(['car','bird','cloud','kite','balloon','fly2','leaf','soap','drop','bub','cap','fish','conf']);
+const RATE={fountain:9,confetti:9,caps:.5,fish:.55,balloons:.45,doves:.14,soap:.6,skylant:.9,leaves:2.2,dryleaves:2.6,petals:1.8,birds:.22,gulls:.28,pigeons:.3,flock:.08,sparkle:5,fireflies:7,motes:5,smoke:2.2,clouds:.05,butterflies:.35,spray:12,bubbles:3,steam:2,glints:4,twinkle:8,lanterns:2,kites:.12,traffic:.2};
+function stepFx(dt){
+  if(reduce)return;
+  const W=innerWidth,H=innerHeight,wx=cur+riderX,dx=cur-lastCur;lastCur=cur;
+  // spawn from the scene(s) under the camera, faded across the overlap
+  const t=(wx-SW/2)/STEP,i=Math.floor(t),f=clamp(t-i,0,1);
+  const here=clamp(Math.floor((wx+SW*OV*.5)/STEP),0,N-1);
+  [[here,1]].forEach(([si,w])=>{(SCENES[si].fx||[]).forEach(e=>{const c=e.indexOf(':'),k=c<0?e:e.slice(0,c),a=c<0?'':e.slice(c+1);if(Math.random()<(RATE[k]||0)*w*dt)spawn(k,a,si);});});
+  cx.clearRect(0,0,W,H);cb.clearRect(0,0,W,H);
+  const _in=SCENES[clamp(Math.floor((wx+SW*OV*.5)/STEP),0,N-1)].indoor;
+  parts=parts.filter(p=>!(_in&&OUTDOOR.has(p.k))&&!(!_in&&p.k==='conf')&&p.life>0&&p.x>-W*.5&&p.x<W+W*.4&&p.y<H+40&&p.y>-200);
+  if(parts.length>700)parts.splice(0,parts.length-700);
+  for(const p of parts){
+    p.x-=dx*(p.k==='bird'||p.k==='cloud'||p.k==='kite'?.25:p.k==='leaf'?1.15:1);   // stay attached to the world while scrolling
+    if(p.k==='leaf'){p.ph+=dt*2.2;p.x+=(p.vx+Math.sin(p.ph)*26)*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;
+      cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.scale(1,Math.abs(Math.cos(p.ph*.8))*.8+.2);
+      cx.globalAlpha=.78;cx.fillStyle=p.c;cx.beginPath();cx.ellipse(0,0,p.s,p.s*.45,0,0,6.283);cx.fill();
+      cx.globalAlpha=.35;cx.strokeStyle='#4A3A22';cx.lineWidth=.6;cx.beginPath();cx.moveTo(-p.s,0);cx.lineTo(p.s,0);cx.stroke();cx.restore();}
+    else if(p.k==='bird'){p.ph+=dt*(p.gull?6:11);p.x+=p.vx*dt;p.y+=p.vy*dt+Math.sin(p.ph*.3)*.15;
+      const fl=Math.sin(p.ph)*p.s*.6;cx.globalAlpha=.75;cx.strokeStyle=p.dove?'#FFFFFF':p.gull?'#4E5660':'#3A3530';cx.lineWidth=Math.max(1,p.s*.2);cx.lineCap='round';
+      cx.beginPath();cx.moveTo(p.x-p.s,p.y-fl);cx.quadraticCurveTo(p.x-p.s*.4,p.y-p.s*.35,p.x,p.y);cx.quadraticCurveTo(p.x+p.s*.4,p.y-p.s*.35,p.x+p.s,p.y-fl);cx.stroke();}
+    else if(p.k==='spark'){p.t+=dt;const a=Math.sin(Math.PI*p.t/p.d);if(p.t>p.d)p.life=0;
+      cx.globalAlpha=Math.max(0,a)*a*.75;cx.fillStyle='#FFFDF2';cx.beginPath();cx.ellipse(p.x,p.y,p.s*2.4,p.s*.6,0,0,6.283);cx.fill();
+      if(p.star){cx.beginPath();cx.ellipse(p.x,p.y,p.s*.6,p.s*2.4,0,0,6.283);cx.fill();}}
+    else if(p.k==='cloud'){p.x+=p.vx*dt;cx.globalAlpha=p.a;cx.fillStyle='#FFFFFF';
+      for(const[ox,oy,r]of[[0,0,1],[.7,-.15,.75],[-.7,.05,.7],[1.3,.08,.55],[-1.2,.12,.5]]){cx.beginPath();cx.ellipse(p.x+ox*p.s,p.y+oy*p.s,r*p.s,r*p.s*.55,0,0,6.283);cx.fill();}}
+    else if(p.k==='fly2'){p.t+=dt;p.ph+=dt*14;p.x+=(p.vx+Math.sin(p.t*2)*30)*dt;p.y+=(p.vy+Math.cos(p.t*3)*20)*dt;if(p.t>p.d)p.life=0;
+      const f=Math.abs(Math.sin(p.ph));cx.globalAlpha=.9;cx.fillStyle=p.c;
+      cx.beginPath();cx.ellipse(p.x-p.s*.5*f,p.y,p.s*f,p.s*.7,-.4,0,6.283);cx.ellipse(p.x+p.s*.5*f,p.y,p.s*f,p.s*.7,.4,0,6.283);cx.fill();}
+    else if(p.k==='drop'){p.t+=dt;p.vy+=(p.g||160)*dt;if(p.mist){p.s+=dt*6;}p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.t>1.2)p.life=0;
+      cx.globalAlpha=.75;cx.fillStyle='#EAF6FF';cx.beginPath();cx.arc(p.x,p.y,p.s,0,6.283);cx.fill();}
+    else if(p.k==='bub'){p.t+=dt;p.ph+=dt*3;p.x+=(p.vx+Math.sin(p.ph)*8)*dt;p.y+=p.vy*dt;if(p.t>p.d)p.life=0;
+      cx.globalAlpha=.7*Math.sin(Math.PI*p.t/p.d);cx.strokeStyle='#E6F7FF';cx.lineWidth=1.2;cx.beginPath();cx.arc(p.x,p.y,p.s,0,6.283);cx.stroke();}
+    else if(p.k==='kite'){p.t+=dt;p.ph+=dt*1.6;if(p.t>p.d)p.life=0;const a=Math.min(1,p.t,p.d-p.t);const kx=p.x+Math.sin(p.ph)*18,ky=p.y+Math.cos(p.ph*1.3)*10;
+      cx.globalAlpha=.9*a;cx.fillStyle=p.c;cx.beginPath();cx.moveTo(kx,ky-p.s);cx.lineTo(kx+p.s*.7,ky);cx.lineTo(kx,ky+p.s);cx.lineTo(kx-p.s*.7,ky);cx.closePath();cx.fill();
+      cx.strokeStyle='rgba(60,50,40,.5)';cx.lineWidth=.8;cx.beginPath();cx.moveTo(kx,ky+p.s);for(let q=1;q<6;q++)cx.lineTo(kx+Math.sin(p.ph*2+q)*6,ky+p.s+q*p.s*.5);cx.stroke();
+      cx.beginPath();cx.moveTo(kx,ky);cx.quadraticCurveTo(kx-40,ky+H*.3,kx-80,H*.75);cx.stroke();}
+    else if(p.k==='car'){p.x+=p.vx*dt;const im=p.im;if(!im.complete||!im.naturalWidth)continue;const w=p.h*im.naturalWidth/im.naturalHeight;
+      cx.save();cx.globalAlpha=.5;cx.translate(p.x,p.y);if(p.im._flip)cx.scale(-1,1);
+      cx.drawImage(im,-w/2,-p.h,w,p.h);cx.restore();
+      if(p.night){const gr=cx.createRadialGradient(p.x-w*.48,p.y-p.h*.35,0,p.x-w*.48,p.y-p.h*.35,p.h*.6);gr.addColorStop(0,'rgba(255,236,180,.85)');gr.addColorStop(1,'rgba(255,236,180,0)');cx.fillStyle=gr;cx.beginPath();cx.arc(p.x-w*.48,p.y-p.h*.35,p.h*.6,0,6.283);cx.fill();}}
+    else if(p.k==='conf'){p.ph+=dt*5;p.r+=p.vr*dt;p.x+=(p.vx+Math.sin(p.ph)*25)*dt;p.y+=p.vy*dt;
+      cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.scale(1,Math.cos(p.ph));cx.globalAlpha=.9;cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s*.3,p.s,p.s*.6);cx.restore();}
+    else if(p.k==='cap'){p.t+=dt;p.vy+=p.g*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;if(p.t>3.2)p.life=0;
+      cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.scale(1,Math.abs(Math.cos(p.r*1.3))*.7+.3);cx.globalAlpha=.95;
+      cx.fillStyle='#1E2230';cx.beginPath();cx.moveTo(-p.s,0);cx.lineTo(0,-p.s*.45);cx.lineTo(p.s,0);cx.lineTo(0,p.s*.45);cx.closePath();cx.fill();
+      cx.strokeStyle='#E9B949';cx.lineWidth=Math.max(1,p.s*.12);cx.beginPath();cx.moveTo(0,0);cx.lineTo(p.s*.7,p.s*.55);cx.stroke();cx.restore();}
+    else if(p.k==='fish'){p.ph+=dt*9;p.x+=p.vx*dt;p.y+=Math.sin(p.ph*.25)*.6;const d=Math.sign(p.vx),w=Math.sin(p.ph)*.35;
+      cx.save();cx.translate(p.x,p.y);cx.scale(d,1);cx.globalAlpha=.88;cx.fillStyle=p.c[0];cx.beginPath();cx.ellipse(0,0,p.s,p.s*.5,0,0,6.283);cx.fill();
+      cx.beginPath();cx.moveTo(-p.s*.8,0);cx.lineTo(-p.s*1.6,-p.s*(.5+w));cx.lineTo(-p.s*1.6,p.s*(.5-w));cx.closePath();cx.fill();
+      cx.fillStyle=p.c[1];cx.globalAlpha=.7;cx.fillRect(-p.s*.15,-p.s*.45,p.s*.22,p.s*.9);cx.fillStyle='#1E2230';cx.globalAlpha=.9;cx.beginPath();cx.arc(p.s*.55,-p.s*.08,p.s*.1,0,6.283);cx.fill();cx.restore();}
+    else if(p.k==='balloon'){p.ph+=dt*1.6;p.y+=p.vy*dt;p.x+=Math.sin(p.ph)*.5;if(p.y<-60)p.life=0;
+      cx.globalAlpha=.9;cx.fillStyle=p.c;cx.beginPath();cx.ellipse(p.x,p.y,p.s*.8,p.s,0,0,6.283);cx.fill();
+      cx.globalAlpha=.45;cx.fillStyle='#fff';cx.beginPath();cx.ellipse(p.x-p.s*.3,p.y-p.s*.35,p.s*.18,p.s*.28,-.5,0,6.283);cx.fill();
+      cx.globalAlpha=.5;cx.strokeStyle='#5A4A3A';cx.lineWidth=.8;cx.beginPath();cx.moveTo(p.x,p.y+p.s);cx.quadraticCurveTo(p.x+Math.sin(p.ph*1.7)*8,p.y+p.s*2,p.x,p.y+p.s*3);cx.stroke();}
+    else if(p.k==='soap'){p.t+=dt;p.ph+=dt*2;p.x+=(p.vx+Math.sin(p.ph)*12)*dt;p.y+=p.vy*dt;if(p.t>p.d)p.life=0;const a=Math.min(1,p.t,p.d-p.t)*.8;
+      const gr=cx.createRadialGradient(p.x-p.s*.3,p.y-p.s*.3,p.s*.1,p.x,p.y,p.s);gr.addColorStop(0,'rgba(255,255,255,.05)');gr.addColorStop(.75,'rgba(180,220,255,.12)');gr.addColorStop(.9,`hsla(${(p.ph*40)%360},90%,75%,.5)`);gr.addColorStop(1,'rgba(255,255,255,0)');
+      cx.globalAlpha=a;cx.fillStyle=gr;cx.beginPath();cx.arc(p.x,p.y,p.s,0,6.283);cx.fill();cx.fillStyle='rgba(255,255,255,.8)';cx.beginPath();cx.ellipse(p.x-p.s*.4,p.y-p.s*.45,p.s*.16,p.s*.08,-.6,0,6.283);cx.fill();}
+    else if(p.k==='skylant'){p.t+=dt;p.ph+=dt*3;p.x+=(p.vx+Math.sin(p.t*.7)*6)*dt;p.y+=p.vy*dt;p.s*=1-dt*.04;if(p.y<-40)p.life=0;const fl=.8+Math.sin(p.ph)*.12+Math.sin(p.ph*2.7)*.08;
+      const gr=cx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.s*3);gr.addColorStop(0,`rgba(255,190,90,${.55*fl})`);gr.addColorStop(1,'rgba(255,150,60,0)');cx.globalAlpha=1;cx.fillStyle=gr;cx.beginPath();cx.arc(p.x,p.y,p.s*3,0,6.283);cx.fill();
+      cx.fillStyle=`rgba(255,${200+30*fl|0},140,.95)`;cx.beginPath();cx.moveTo(p.x-p.s*.55,p.y-p.s*.7);cx.lineTo(p.x+p.s*.55,p.y-p.s*.7);cx.lineTo(p.x+p.s*.4,p.y+p.s*.6);cx.lineTo(p.x-p.s*.4,p.y+p.s*.6);cx.closePath();cx.fill();}
+    else if(p.k==='fly'||p.k==='mote'){p.t+=dt;p.ph=(p.ph||0)+dt*1.4;p.x+=(p.vx+Math.sin(p.ph)*6)*dt;p.y+=p.vy*dt;if(p.t>p.d)p.life=0;
+      const a=Math.sin(Math.PI*p.t/p.d);const col=p.warm?'255,170,90':p.k==='fly'?'255,214,140':'255,248,225';
+      const gr=cx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.s*4);gr.addColorStop(0,`rgba(${col},${(.9*a).toFixed(3)})`);gr.addColorStop(1,`rgba(${col},0)`);
+      cx.globalAlpha=1;cx.fillStyle=gr;cx.beginPath();cx.arc(p.x,p.y,p.s*4,0,6.283);cx.fill();}
+    else if(p.k==='smoke'){p.t+=dt;p.x+=p.vx*dt+Math.sin(p.t*1.3)*.4;p.y+=p.vy*dt;p.s+=dt*5;if(p.t>p.d)p.life=0;
+      const a=Math.sin(Math.PI*p.t/p.d)*.16;cx.globalAlpha=Math.max(0,a);cx.fillStyle=p.col||'#EDE6DA';cx.beginPath();cx.arc(p.x,p.y,p.s,0,6.283);cx.fill();}
+  }
+  drawDeco();
+  if(blurAmt>6){const n=Math.min(14,blurAmt/3|0);cx.globalAlpha=Math.min(.22,blurAmt/160);cx.strokeStyle='#FFF8EA';cx.lineCap='round';
+    for(let q=0;q<n;q++){const y=rnd(.1,.9)*H,x=rnd(-.2,1)*W,l=rnd(.15,.45)*W;cx.lineWidth=rnd(1,3);cx.beginPath();cx.moveTo(x,y);cx.lineTo(x+l,y);cx.stroke();}}
+  cx.globalAlpha=1;
+}
+function drawDeco(){
+  const W=innerWidth,H=innerHeight,T=performance.now()/1000;
+  for(let si=Math.max(0,Math.floor(cur/STEP)-1);si<=Math.min(N-1,Math.floor((cur+W)/STEP)+1);si++){
+    const sl=si*STEP-cur;if(sl>W||sl+SW<0)continue;
+    // fade in/out with how much of the scene is on screen
+    const vis=clamp(Math.min(sl+SW,W)-Math.max(sl,0),0,W)/W;const A=clamp(vis*1.4-.2,0,1);if(A<=0)continue;
+    (SCENES[si].fx||[]).forEach(e=>{const[k,a1,a2]=e.split(':');const X=sl+(+a1)*SW,Y=(+a2)*H;cx.globalAlpha=1;cx.globalCompositeOperation='source-over';cx.filter='none';
+      if(k==='rays'){cx.save();cx.globalCompositeOperation='screen';
+        const a0=Math.atan2(H*.75-Y,(sl+SW*.5)-X),br=.85+.15*Math.sin(T*.5);for(let q=0;q<9;q++){const ang=a0-.7+q*.175,len=H*1.6,wd=.03+.012*((q*7)%3);
+          const gr=cx.createLinearGradient(X,Y,X+Math.cos(ang)*len,Y+Math.sin(ang)*len);gr.addColorStop(0,`rgba(255,236,190,${(.2*A*br).toFixed(3)})`);gr.addColorStop(1,'rgba(255,236,190,0)');
+          cx.fillStyle=gr;cx.beginPath();cx.moveTo(X,Y);cx.lineTo(X+Math.cos(ang-wd)*len,Y+Math.sin(ang-wd)*len);cx.lineTo(X+Math.cos(ang+wd)*len,Y+Math.sin(ang+wd)*len);cx.closePath();cx.fill();}
+        const g2=cx.createRadialGradient(X,Y,0,X,Y,H*.35);g2.addColorStop(0,`rgba(255,240,200,${(.5*A*br).toFixed(3)})`);g2.addColorStop(1,'rgba(255,220,160,0)');cx.fillStyle=g2;cx.beginPath();cx.arc(X,Y,H*.35,0,6.283);cx.fill();cx.restore();}
+      else if(k==='beams'){cx.save();cx.globalCompositeOperation='lighter';
+        [['255,120,200',0],['90,200,255',2.1],['255,210,90',4.2]].forEach(([c,o])=>{const ang=-Math.PI/2+Math.sin(T*.7+o)*.75,len=H*1.2,wd=.09;
+          const gr=cx.createLinearGradient(X,Y,X+Math.cos(ang)*len,Y+Math.sin(ang)*len);gr.addColorStop(0,`rgba(${c},${(.3*A).toFixed(3)})`);gr.addColorStop(1,`rgba(${c},0)`);
+          cx.fillStyle=gr;cx.beginPath();cx.moveTo(X,Y);cx.lineTo(X+Math.cos(ang-wd)*len,Y+Math.sin(ang-wd)*len);cx.lineTo(X+Math.cos(ang+wd)*len,Y+Math.sin(ang+wd)*len);cx.closePath();cx.fill();});cx.restore();}
+      else if(k==='halo'){cx.save();cx.globalCompositeOperation='screen';const pr=1+.06*Math.sin(T*.7),r=H*.09*pr;
+        const gr=cx.createRadialGradient(X,Y,0,X,Y,r*2.2);gr.addColorStop(0,`rgba(255,226,150,${(.6*A).toFixed(3)})`);gr.addColorStop(.5,`rgba(255,200,110,${(.22*A).toFixed(3)})`);gr.addColorStop(1,'rgba(255,190,100,0)');
+        cx.fillStyle=gr;cx.beginPath();cx.arc(X,Y,r*2.2,0,6.283);cx.fill();
+        cx.strokeStyle=`rgba(255,235,180,${(.5*A).toFixed(3)})`;cx.lineWidth=1.5;for(let q=0;q<12;q++){const an=T*.12+q*.5236;cx.beginPath();cx.moveTo(X+Math.cos(an)*r*1.1,Y+Math.sin(an)*r*1.1);cx.lineTo(X+Math.cos(an)*r*1.6,Y+Math.sin(an)*r*1.6);cx.stroke();}cx.restore();}
+      else if(k==='bunting'){const cols=['#E4574A','#F2C94C','#3B6FB0','#2E9C8A','#EE8FB6','#FFFFFF'];
+        for(let row=0;row<2;row++){const y0=H*(.05+row*.09),x0=sl+SW*(row?.05:.0),x1=x0+SW*.95,sag=H*.06;const n=26;
+          cx.globalAlpha=.8*A;cx.strokeStyle='#6A5A48';cx.lineWidth=1;cx.beginPath();
+          for(let q=0;q<=n;q++){const u=q/n,x=x0+(x1-x0)*u,y=y0+Math.sin(u*Math.PI*3)*sag*.5+sag*.5;q?cx.lineTo(x,y):cx.moveTo(x,y);}cx.stroke();
+          for(let q=0;q<n;q++){const u=(q+.5)/n,x=x0+(x1-x0)*u,y=y0+Math.sin(u*Math.PI*3)*sag*.5+sag*.5,fl=Math.sin(T*4+q*1.3+row)*.35,sz=H*.03;
+            cx.fillStyle=cols[(q+row*3)%cols.length];cx.beginPath();cx.moveTo(x-sz*.5,y);cx.lineTo(x+sz*.5,y);cx.lineTo(x+sz*fl*.6,y+sz*1.2);cx.closePath();cx.fill();}}
+        cx.globalAlpha=1;}
+    });
+  }
+}
+/* ===== background music: generated live in the browser (no audio files, no copyright) =====
+   each part of the trip has its own little band + ambience; they crossfade as you travel */
+const ZONE_OF={education:'campus',thamrong:'campus',aquarium:'campus',
+  burapha_gate:'street',student_street:'street',laemthong:'street',hospital:'street',road_city:'street',
+  laemthong_inside:'mall',nongmon:'market',nongmon_inside:'market',
+  road_beach:'beach',wonnapha:'beach',wannapark:'beach',jaophosaen:'beach',beach:'beach',beach_mid:'beach',laemthaen:'beach',chonlamark:'beach',
+  road_hill:'sunset',khaosammuk:'sunset',khaosammuk_view:'sunset',shrine:'shrine',
+  road_night:'night',parkin:'night',parkin_food:'night',parkin_seat:'night'};
+const CROWD={student_street:.5,laemthong_inside:1,nongmon:.7,nongmon_inside:1,wannapark:.7,beach_mid:.4,parkin:.8,parkin_food:1,parkin_seat:.9,shrine:.25,jaophosaen:.2};
+const WAVES={wonnapha:1,wannapark:.8,jaophosaen:1,beach:1,beach_mid:.9,laemthaen:1,chonlamark:.85};
+const ZONE_NAME={campus:'เช้าในมหาวิทยาลัย',street:'ถนนหน้ามอ',mall:'ในห้างแอร์เย็น',market:'ตลาดหนองมน',beach:'ทะเลยามบ่าย',sunset:'แดดเย็นที่เขาสามมุข',shrine:'ศาลเจ้ายามโพล้เพล้',night:'ตลาดกลางคืน'};
+const Music=(()=>{
+  let ac=null,master,rev,revIn,noise,on=false,zone=null,step=0,nextT=0,timer=null;const Z={};
+  const hz=m=>440*Math.pow(2,(m-69)/12),R=(a,b)=>a+Math.random()*(b-a),pick=a=>a[Math.random()*a.length|0];
+  function init(){
+    ac=new (window.AudioContext||window.webkitAudioContext)();
+    master=ac.createGain();master.gain.value=0;master.connect(ac.destination);
+    // soft room reverb
+    rev=ac.createConvolver();const len=ac.sampleRate*2.6,b=ac.createBuffer(2,len,ac.sampleRate);
+    for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.8);}
+    rev.buffer=b;revIn=ac.createGain();revIn.gain.value=.35;revIn.connect(rev);rev.connect(master);
+    noise=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate);const nd=noise.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+  }
+  function bus(name){if(Z[name])return Z[name];const g=ac.createGain();g.gain.value=0;g.connect(master);g.connect(revIn);Z[name]={g,amb:false};return Z[name];}
+  // ---- instruments
+  function env(g,t,a,d,p){g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(p,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+d);}
+  function osc(out,type,f,t,a,d,p,lp,det){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;if(det)o.detune.value=det;
+    let n=o;if(lp){const q=ac.createBiquadFilter();q.type='lowpass';q.frequency.value=lp;o.connect(q);n=q;}n.connect(g);g.connect(out);env(g,t,a,d,p);o.start(t);o.stop(t+a+d+.1);}
+  function nz(out,t,d,p,type,f,q){const s=ac.createBufferSource();s.buffer=noise;const fl=ac.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q||1;const g=ac.createGain();
+    s.connect(fl);fl.connect(g);g.connect(out);env(g,t,.003,d,p);s.start(t,Math.random());s.stop(t+d+.05);}
+  const I={
+    marimba:(o,m,t,v=.3)=>{osc(o,'sine',hz(m),t,.004,.45,v);osc(o,'sine',hz(m)*4,t,.002,.06,v*.25);},
+    ranat:(o,m,t,v=.28)=>{osc(o,'sine',hz(m),t,.003,.35,v);osc(o,'triangle',hz(m)*3.01,t,.002,.08,v*.3);},
+    pluck:(o,m,t,v=.22)=>{osc(o,'triangle',hz(m),t,.004,.7,v,2600);osc(o,'sawtooth',hz(m),t,.003,.18,v*.35,1400);},
+    keys:(o,m,t,v=.16,d=1.2)=>{osc(o,'sine',hz(m),t,.012,d,v);osc(o,'triangle',hz(m)*2,t,.01,d*.4,v*.18);},
+    piano:(o,m,t,v=.2)=>{osc(o,'triangle',hz(m),t,.005,1.6,v,3000);osc(o,'sine',hz(m)*2,t,.005,.6,v*.25);},
+    pad:(o,ms,t,dur,v=.05)=>{ms.forEach(m=>[-6,6].forEach(dt=>{const x=ac.createOscillator(),g=ac.createGain(),q=ac.createBiquadFilter();
+      x.type='sawtooth';x.frequency.value=hz(m);x.detune.value=dt;q.type='lowpass';q.frequency.value=900;x.connect(q);q.connect(g);g.connect(o);
+      g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+dur*.35);g.gain.linearRampToValueAtTime(v*.8,t+dur*.8);g.gain.linearRampToValueAtTime(.0001,t+dur*1.15);
+      x.start(t);x.stop(t+dur*1.2);}));},
+    bass:(o,m,t,v=.22,d=.5)=>osc(o,'sine',hz(m),t,.01,d,v),
+    bell:(o,m,t,v=.12)=>[[1,1],[2.76,.5],[5.4,.25],[8.9,.12]].forEach(([r,a])=>osc(o,'sine',hz(m)*r,t,.003,2.6/r+.3,v*a)),
+    kick:(o,t,v=.35)=>{const x=ac.createOscillator(),g=ac.createGain();x.frequency.setValueAtTime(110,t);x.frequency.exponentialRampToValueAtTime(42,t+.14);x.connect(g);g.connect(o);env(g,t,.003,.28,v);x.start(t);x.stop(t+.35);},
+    snare:(o,t,v=.08)=>nz(o,t,.16,v,'bandpass',1800,.8),
+    hat:(o,t,v=.03)=>nz(o,t,.04,v,'highpass',7500),
+    shaker:(o,t,v=.025)=>nz(o,t,.07,v,'bandpass',5200,1.5),
+    ching:(o,t,v=.06,open=true)=>{osc(o,'sine',2860,t,.002,open?.7:.08,v);osc(o,'sine',4130,t,.002,open?.5:.06,v*.6);}
+  };
+  // ---- ambience loops (started once per zone, faded with the zone)
+  function amb(name,z){if(z.amb)return;z.amb=true;const o=z.g;
+    const loop=(type,f,v,lfoHz,lfoAmt)=>{const s=ac.createBufferSource();s.buffer=noise;s.loop=true;const fl=ac.createBiquadFilter();fl.type=type;fl.frequency.value=f;const g=ac.createGain();g.gain.value=v;
+      s.connect(fl);fl.connect(g);g.connect(o);if(lfoHz){const l=ac.createOscillator(),lg=ac.createGain();l.frequency.value=lfoHz;lg.gain.value=lfoAmt;l.connect(lg);lg.connect(g.gain);l.start();}s.start();};
+
+
+    if(name==='street')loop('lowpass',260,.035,.05,.01);
+    if(name==='shrine')loop('bandpass',380,.03,.05,.02);
+    if(name==='market')loop('bandpass',900,.012,.2,.006);
+  }
+  // ---- the eight little bands (16 steps per bar)
+  const C=(...a)=>a;
+  const BANDS={
+    campus:{bpm:96,ch:[C(48,52,55,60),C(45,52,57,60),C(41,53,57,60),C(43,50,55,59)],play(o,s,t,ch,bt){
+      if(s%16===0)I.pad(o,ch,t,bt*16,.022);
+      if(s%2===0)I.marimba(o,ch[(s/2)%4]+12+(s%8===6?12:0),t,.18);
+      if([3,11].includes(s%16)&&Math.random()<.6)I.marimba(o,pick([72,74,76,79,81]),t,.12);
+      if(Math.random()<.025)birdChirp(o,t);}},
+    street:{bpm:84,ch:[C(41,57,60,64),C(40,55,59,62),C(38,53,57,60),C(36,55,59,64)],swing:.18,play(o,s,t,ch,bt){
+      const b=s%16;if(b===0||b===10)ch.slice(1).forEach(m=>I.keys(o,m,t,.07,1.6));
+      if(b===0)I.bass(o,ch[0]-12+12,t,.2,.8);if(b===10)I.bass(o,ch[0],t,.14,.4);
+      if(b===0||b===7||b===10)I.kick(o,t,.22);if(b===4||b===12)I.snare(o,t,.05);if(s%2===0)I.hat(o,t,.018);}},
+    mall:{bpm:100,ch:[C(50,53,57,60,64),C(43,53,59,64),C(48,52,55,59,62),C(45,55,61,64)],play(o,s,t,ch,bt){
+      const b=s%16;if(b===0||b===6)I.bass(o,ch[0]-12,t,.2,.4);if(b===8)I.bass(o,ch[0]-5,t,.15,.4);
+      if([3,6,10,14].includes(b))ch.slice(1).forEach(m=>I.keys(o,m+12,t,.045,.5));I.shaker(o,t,b%4===0?.022:.012);}},
+    market:{bpm:92,ch:[C(48,55)],mel:67,play(o,s,t,ch,bt){
+      const b=s%16;if(b===0&&s%32===0)I.pad(o,[36,43,48],t,bt*32,.02);
+      if(s%2===0&&Math.random()<.85){const sc=[60,62,64,67,69,72,74,76,79];let i=sc.indexOf(this.mel);i=Math.max(0,Math.min(sc.length-1,i+pick([-2,-1,1,1,2])));this.mel=sc[i];I.ranat(o,this.mel,t,.16);}
+      if(b===0||b===8)I.ching(o,t,.05,true);if(b===4||b===12)I.ching(o,t,.04,false);
+      if(b===0)I.bass(o,36,t,.12,.6);}},
+    beach:{bpm:92,ch:[C(43,55,59,62,67),C(38,54,57,62,66),C(40,55,59,64,67),C(36,55,60,64,67)],play(o,s,t,ch,bt){
+      const b=s%16;if([0,6,8,12].includes(b)){const dn=b===6||b===12;(dn?ch.slice(1).reverse():ch.slice(1)).forEach((m,i)=>I.pluck(o,m,t+i*.016,b===0?.12:.08));}
+      if(b===0||b===8)I.bass(o,ch[0],t,.18,.5);if(s%2===1)I.shaker(o,t,.012);
+      if(Math.random()<.012)gull(o,t);}},
+    sunset:{bpm:70,ch:[C(50,54,57,61),C(47,54,57,62),C(43,54,59,62),C(45,52,57,61)],play(o,s,t,ch,bt){
+      const b=s%16;if(b===0)I.pad(o,ch,t,bt*16,.03);if(b===0)I.bass(o,ch[0]-12,t,.15,2.5);
+      if([0,6,8,14].includes(b)&&Math.random()<.7)I.piano(o,pick(ch)+12+pick([0,12]),t,.12);}},
+    shrine:{bpm:60,ch:[C(50,57)],play(o,s,t,ch,bt){
+      const b=s%16;if(s%32===0){I.pad(o,[38,45,50],t,bt*32,.02);I.bell(o,38,t,.16);}
+      if(s%4===0&&Math.random()<.55)I.bell(o,pick([74,76,78,81,83,86]),t,.05);}},
+    night:{bpm:88,ch:[C(45,55,60,64,67),C(50,53,57,60,64),C(43,54,59,62,66),C(48,52,55,59,64)],play(o,s,t,ch,bt){
+      const b=s%16;if(b===0||b===11)ch.slice(1).forEach(m=>I.keys(o,m,t,.06,1.8));if(b===0)I.bass(o,ch[0]-12,t,.2,.9);if(b===10)I.bass(o,ch[0]-5,t,.14,.4);
+      if(b===0||b===8)I.kick(o,t,.18);if(b===4||b===12)I.snare(o,t,.035);if(s%2===0)I.hat(o,t,.012);
+      if(Math.random()<.05)I.bell(o,pick([84,86,88,91,93]),t,.025);if(Math.random()<.08)cricket(o,t);}}
+  };
+  function birdChirp(o,t){const x=ac.createOscillator(),g=ac.createGain();const f=R(2600,3600);x.frequency.setValueAtTime(f,t);x.frequency.exponentialRampToValueAtTime(f*1.4,t+.07);x.connect(g);g.connect(o);env(g,t,.005,.08,.025);x.start(t);x.stop(t+.12);}
+  function gull(o,t){const x=ac.createOscillator(),g=ac.createGain();x.type='triangle';x.frequency.setValueAtTime(1500,t);x.frequency.linearRampToValueAtTime(900,t+.35);x.connect(g);g.connect(o);env(g,t,.02,.35,.02);x.start(t);x.stop(t+.45);}
+  function cricket(o,t){for(let k=0;k<3;k++)osc(o,'sine',4600,t+k*.05,.003,.03,.012);}
+  function tick(){
+    if(!on||!zone)return;
+    const B=BANDS[zone],bt=60/B.bpm/4,z=bus(zone);
+    while(nextT<ac.currentTime+.25){
+      const ch=B.ch[Math.floor(step/16)%B.ch.length];const sw=(B.swing&&step%2)?bt*B.swing:0;
+      try{B.play(z.g,step,nextT+sw,ch,bt);}catch(e){}
+      nextT+=bt;step++;
+    }
+  }
+  function setZone(name){
+    if(!name||name===zone)return;zone=name;
+    $('sndz').textContent=ZONE_NAME[name]||'';
+    if(!ac)return;const t=ac.currentTime;
+    Object.entries(Z).forEach(([k,z])=>{z.g.gain.cancelScheduledValues(t);z.g.gain.setValueAtTime(z.g.gain.value,t);z.g.gain.linearRampToValueAtTime(k===name?1:0,t+2.5);});
+    const z=bus(name);amb(name,z);z.g.gain.cancelScheduledValues(t);z.g.gain.setValueAtTime(z.g.gain.value,t);z.g.gain.linearRampToValueAtTime(1,t+2.5);
+    step=0;nextT=t+.1;
+  }
+
+  /* ---------- sound effects: engines, footsteps, crowds, big waves ---------- */
+  let fx=null,spd=0,stepT=0,stepLR=0,lastMode='',talkT=0,crashT=0;
+  function fxInit(){
+    fx={};const g=ac.createGain();g.gain.value=.9;g.connect(master);fx.out=g;
+    const room=ac.createGain();room.gain.value=0;room.connect(revIn);fx.room=room;   // echo for the mall
+    // engine: two detuned saws through a low filter; pitch + level follow the speed
+    const eg=ac.createGain();eg.gain.value=0;const lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=320;lp.connect(eg);eg.connect(g);
+    fx.eng=[ac.createOscillator(),ac.createOscillator()];fx.eng.forEach((o,i)=>{o.type='sawtooth';o.frequency.value=48+i*24;o.connect(lp);o.start();});
+    const rum=ac.createBufferSource();rum.buffer=noise;rum.loop=true;const rl=ac.createBiquadFilter();rl.type='lowpass';rl.frequency.value=140;const rg=ac.createGain();rg.gain.value=0;rum.connect(rl);rl.connect(rg);rg.connect(g);rum.start();
+    fx.eg=eg;fx.elp=lp;fx.rg=rg;
+    // road / tyre noise while riding
+    const tn=ac.createBufferSource();tn.buffer=noise;tn.loop=true;const tf=ac.createBiquadFilter();tf.type='bandpass';tf.frequency.value=700;tf.Q.value=.6;const tg=ac.createGain();tg.gain.value=0;tn.connect(tf);tf.connect(tg);tg.connect(g);tn.start();fx.tg=tg;
+    // big waves: a slow swell plus crashing foam
+    const wv=ac.createBufferSource();wv.buffer=noise;wv.loop=true;const wf=ac.createBiquadFilter();wf.type='lowpass';wf.frequency.value=1100;const wg=ac.createGain();wg.gain.value=0;
+    const sw=ac.createGain();sw.gain.value=.5;const lfo=ac.createOscillator();lfo.frequency.value=.18;const la=ac.createGain();la.gain.value=.25;lfo.connect(la);la.connect(sw.gain);lfo.start();
+    wv.connect(wf);wf.connect(sw);sw.connect(wg);wg.connect(g);wv.start();fx.wg=wg;
+    // crowd bed (murmur) — the talking itself is made of little "syllables" below
+    const cb=ac.createBufferSource();cb.buffer=noise;cb.loop=true;const cf=ac.createBiquadFilter();cf.type='bandpass';cf.frequency.value=600;cf.Q.value=.9;const cg=ac.createGain();cg.gain.value=0;cb.connect(cf);cf.connect(cg);cg.connect(g);cg.connect(room);cb.start();fx.cg=cg;
+    fx.crowd=0;fx.waves=0;fx.indoor=false;
+  }
+  const sm=(param,v,t)=>{param.cancelScheduledValues(t);param.setValueAtTime(param.value,t);param.linearRampToValueAtTime(v,t+.25);};
+  function syllable(t,loud){   // one voice saying one short sound: buzzy source + two vowel formants
+    const o=ac.createOscillator(),f1=ac.createBiquadFilter(),f2=ac.createBiquadFilter(),g=ac.createGain(),p=ac.createStereoPanner?ac.createStereoPanner():null;
+    const f0=R(115,260),d=R(.07,.22),v=[[300,2300],[400,2000],[600,1800],[700,1200],[500,900]][Math.random()*5|0];
+    o.type='sawtooth';o.frequency.setValueAtTime(f0,t);o.frequency.linearRampToValueAtTime(f0*R(.85,1.15),t+d);
+    f1.type='bandpass';f1.frequency.value=v[0];f1.Q.value=6;f2.type='bandpass';f2.frequency.value=v[1];f2.Q.value=8;
+    o.connect(f1);o.connect(f2);f1.connect(g);f2.connect(g);
+    let n=g;if(p){p.pan.value=R(-.9,.9);g.connect(p);n=p;}n.connect(fx.out);n.connect(fx.room);
+    const a=(loud?.05:.018)*fx.crowd;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(a,t+.02);g.gain.linearRampToValueAtTime(.0001,t+d);o.start(t);o.stop(t+d+.05);
+  }
+  function footstep(t,indoor){
+    stepLR^=1;nz(fx.out,t,.07,indoor?.05:.07,'bandpass',indoor?1500:420,indoor?2:1.2);   // shoe on tiles / on pavement
+    osc(fx.out,'sine',indoor?150:85,t,.002,.06,.06);
+    if(indoor)nz(fx.room,t,.05,.03,'highpass',2500);
+  }
+  let brown=null;
+  function brownBuf(){const b=ac.createBuffer(1,ac.sampleRate*8,ac.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){l=(l+.02*(Math.random()*2-1))/1.02;d[i]=l*3.5;}return b;}
+  function crash(t){   // gentle shore-break: a small wave slides up the sand, foams, and is gone
+    const W=fx.waves,pan=ac.createStereoPanner?ac.createStereoPanner():null;if(pan){pan.pan.value=R(-.7,.7);pan.connect(fx.out);}const dst=pan||fx.out;
+    const n=1+(Math.random()<.35?1:0);                                  // sometimes a double lap
+    for(let k=0;k<n;k++){const t0=t+k*R(.35,.6),up=R(.25,.45),dn=R(.9,1.6),pk=R(.07,.12)*W;
+      const s=ac.createBufferSource();s.buffer=noise;const f=ac.createBiquadFilter();f.type='bandpass';f.Q.value=.6;
+      f.frequency.setValueAtTime(700,t0);f.frequency.exponentialRampToValueAtTime(R(2200,3000),t0+up);f.frequency.exponentialRampToValueAtTime(1100,t0+up+dn);
+      const g=ac.createGain();g.gain.setValueAtTime(.0001,t0);g.gain.linearRampToValueAtTime(pk,t0+up);g.gain.exponentialRampToValueAtTime(.0001,t0+up+dn);
+      s.connect(f);f.connect(g);g.connect(dst);s.start(t0,Math.random());s.stop(t0+up+dn+.1);
+      // fizzing foam as the water runs back
+      const fz=ac.createBufferSource();fz.buffer=noise;const hf=ac.createBiquadFilter();hf.type='highpass';hf.frequency.value=4200;const fg=ac.createGain();
+      fg.gain.setValueAtTime(.0001,t0+up*.8);fg.gain.linearRampToValueAtTime(.025*W,t0+up+.1);fg.gain.exponentialRampToValueAtTime(.0001,t0+up+dn*.8);
+      const am=ac.createOscillator(),ag=ac.createGain();am.frequency.value=R(18,30);ag.gain.value=.012*W;am.connect(ag);ag.connect(fg.gain);
+      fz.connect(hf);hf.connect(fg);fg.connect(dst);fz.start(t0+up*.8,Math.random());fz.stop(t0+up+dn);am.start(t0+up*.8);am.stop(t0+up+dn);}
+  }
+  function passBy(){   // a vehicle whooshing past in the near lane
+    if(!on||!fx)return;const t=ac.currentTime+.05;
+    const s=ac.createBufferSource();s.buffer=noise;const f=ac.createBiquadFilter();f.type='bandpass';f.Q.value=.8;f.frequency.setValueAtTime(500,t);f.frequency.linearRampToValueAtTime(1300,t+.7);f.frequency.linearRampToValueAtTime(380,t+1.6);
+    const g=ac.createGain();g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.14,t+.75);g.gain.exponentialRampToValueAtTime(.0001,t+1.9);s.connect(f);f.connect(g);g.connect(fx.out);s.start(t,Math.random());s.stop(t+2);
+    const o=ac.createOscillator(),og=ac.createGain(),ol=ac.createBiquadFilter();o.type='sawtooth';ol.type='lowpass';ol.frequency.value=500;
+    o.frequency.setValueAtTime(95,t);o.frequency.linearRampToValueAtTime(120,t+.7);o.frequency.linearRampToValueAtTime(70,t+1.6);   // doppler
+    o.connect(ol);ol.connect(og);og.connect(fx.out);og.gain.setValueAtTime(.0001,t);og.gain.linearRampToValueAtTime(.05,t+.75);og.gain.exponentialRampToValueAtTime(.0001,t+1.8);o.start(t);o.stop(t+1.9);
+  }
+  function sfx(st){   // called every frame: {mode, speed, indoor, crowd, waves}
+    if(!on||!ac)return;if(!fx)fxInit();const t=ac.currentTime;
+    spd+= (Math.min(1,st.speed/18)-spd)*.08;
+    const moving=spd>.06,m=st.mode;
+    // engines
+    const engV=m==='truck'?.10:m==='win'?.075:m==='bus'?.03:0;
+    sm(fx.eg.gain,engV*(.35+.65*spd),t);sm(fx.rg.gain,(m==='truck'?.12:m==='win'?.05:0)*(.4+.6*spd),t);
+    const base=m==='win'?92:m==='truck'?46:60;fx.eng[0].frequency.setTargetAtTime(base*(1+.9*spd),t,.2);fx.eng[1].frequency.setTargetAtTime(base*1.51*(1+.9*spd),t,.2);
+    fx.elp.frequency.setTargetAtTime(m==='win'?900:m==='bus'?260:420,t,.3);
+    sm(fx.tg.gain,(m==='walk'?0:m==='bike'?.02:.035)*spd,t);
+    // footsteps while walking and scrolling
+    if(m==='walk'&&moving&&t>stepT){footstep(t+.01,st.indoor);stepT=t+.42-spd*.1;}
+    // bicycle freewheel ticks
+    if(m==='bike'&&moving&&Math.random()<.5)nz(fx.out,t+.01,.012,.012,'highpass',5000);
+    // crowds in markets and the mall
+    fx.crowd+=((st.crowd||0)-fx.crowd)*.03;sm(fx.cg.gain,.05*fx.crowd,t);sm(fx.room.gain,st.indoor?.6:.15,t);
+    if(fx.crowd>.05&&t>talkT){const n=1+(Math.random()*3|0);for(let i=0;i<n;i++)syllable(t+R(0,.12),Math.random()<.08);talkT=t+R(.03,.09);}
+    // the sea
+    fx.waves+=((st.waves||0)-fx.waves)*.02;sm(fx.wg.gain,.035*fx.waves,t);
+    if(fx.waves>.15&&t>crashT){crash(t+.02);crashT=t+R(2.2,4.2);}
+  }
+  function toggle(){
+    if(!ac)init();
+    on=!on;const t=ac.currentTime;
+    if(on){ac.resume();master.gain.cancelScheduledValues(t);master.gain.setValueAtTime(master.gain.value,t);master.gain.linearRampToValueAtTime(.55,t+1.2);
+      const z0=zone;zone=null;setZone(z0||'campus');if(!timer)timer=setInterval(tick,60);}
+    else{master.gain.cancelScheduledValues(t);master.gain.setValueAtTime(master.gain.value,t);master.gain.linearRampToValueAtTime(0,t+.6);}
+    $('snd').classList.toggle('on',on);$('snd').setAttribute('aria-pressed',on);$('sndt').textContent=on?'ปิดเสียง':'เปิดเสียง';
+  }
+  function click(open){
+    if(!ac)init();if(ac.state==='suspended')ac.resume();const t=ac.currentTime+.01,o=ac.createGain();o.gain.value=.5;o.connect(ac.destination);
+    const x=ac.createOscillator(),g=ac.createGain();x.type='sine';x.frequency.setValueAtTime(open?620:900,t);x.frequency.exponentialRampToValueAtTime(open?1240:520,t+.09);
+    x.connect(g);g.connect(o);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(open?.22:.12,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+.16);x.start(t);x.stop(t+.2);
+    if(open){const y=ac.createOscillator(),h=ac.createGain();y.type='sine';y.frequency.value=1860;y.connect(h);h.connect(o);h.gain.setValueAtTime(.0001,t+.05);h.gain.linearRampToValueAtTime(.06,t+.06);h.gain.exponentialRampToValueAtTime(.0001,t+.35);y.start(t+.05);y.stop(t+.4);
+      nz(o,t,.12,.05,'bandpass',3200,.7);}   // a little paper rustle
+  }
+  return{toggle,setZone,sfx,passBy,click,get on(){return on}};
+})();
+document.body.appendChild($('snd'));$('snd').onclick=()=>Music.toggle();
+// ---------- intro: the start button also switches the sound on (browsers need a tap for audio)
+{let armed=true;const first=e=>{if(!armed)return;armed=false;if(e.target.closest&&e.target.closest('#snd'))return;if(!Music.on)Music.toggle();};
+ ['pointerdown','keydown','touchend'].forEach(ev=>addEventListener(ev,first,{once:false,passive:true}));}
+
+
+
+// ---------- the fall: clouds we drop through, wind streaks, vertical blur ----------
+let iS=0;const FALL=$('fall'),fc=FALL.getContext('2d');let fallClouds=null,fallBlur=0;
+function sizeFall(){const d=Math.min(2,devicePixelRatio||1);FALL.width=innerWidth*d;FALL.height=innerHeight*d;fc.setTransform(d,0,0,d,0,0);}
+addEventListener('resize',sizeFall);sizeFall();
+function makeClouds(){const r=[];let seed=7;const rn=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
+  for(let i=0;i<34;i++){const depth=rn();   // 0 far … 1 close
+    r.push({x:rn(),y:1.15+rn()*2.5,d:depth,w:.25+depth*.55,puffs:Array.from({length:6+(rn()*5|0)},()=>[rn()-.5,rn()*.5-.25,.35+rn()*.5])});}
+  return r.sort((a,b)=>a.d-b.d);}
+function fallFx(ie,fv){
+  const W=innerWidth,H=innerHeight;fc.clearRect(0,0,W,H);
+  fallBlur+=((reduce?0:Math.min(26,fv*.9))-fallBlur)*.25;
+  const I=$('intro');const on=fallBlur>1.2;if(I.classList.contains('vb')!==on)I.classList.toggle('vb',on);
+  if(on)$('vblurG').setAttribute('stdDeviation',`0 ${(fallBlur-1).toFixed(1)}`);
+  if(ie>=1||reduce){FALL.style.display='none';return;}FALL.style.display='';
+  if(!fallClouds)fallClouds=makeClouds();
+  const off=ie*4;                                     // how many screens we have fallen
+  for(const c of fallClouds){
+    const par=.6+c.d*1.1;                             // close clouds rush past faster
+    const sy=(c.y-off*par)*H, sx=c.x*W, cw=c.w*W;
+    if(sy<-cw||sy>H+cw)continue;
+    const a=(.35+.5*c.d)*clamp((3.6-off)/0.6,0,1);    // thin out before landing
+    for(const[px,py,pr]of c.puffs){const x=sx+px*cw,y=sy+py*cw*.5,r=pr*cw*.45,st=Math.min(r*.9,fallBlur*c.d*3);
+      const g=fc.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(255,255,255,${(a*.85).toFixed(3)})`);g.addColorStop(.6,`rgba(246,248,252,${(a*.55).toFixed(3)})`);g.addColorStop(1,'rgba(240,244,250,0)');
+      fc.fillStyle=g;fc.beginPath();fc.ellipse(x,y,r,r+st,0,0,6.283);fc.fill();}
+  }
+  if(fallBlur>3){const n=Math.min(40,fallBlur*1.6|0);fc.strokeStyle='rgba(255,255,255,.35)';fc.lineCap='round';   // wind streaks
+    for(let q=0;q<n;q++){const x=Math.random()*W,y=Math.random()*H,l=fallBlur*(4+Math.random()*10);fc.lineWidth=.6+Math.random()*1.6;fc.globalAlpha=.25+Math.random()*.4;fc.beginPath();fc.moveTo(x,y);fc.lineTo(x,y+l);fc.stroke();}
+    fc.globalAlpha=1;}
+}
+let lastT=performance.now(),blurAmt=0,blurOn=false;
+addEventListener('resize',sizeFx);sizeFx();
+function frame(){
+  const now=performance.now(),dt=Math.min(.05,(now-lastT)/1000);lastT=now;
+  const maxS=document.documentElement.scrollHeight-innerHeight;
+  // ---- falling from the sky: eased position with inertia, speed -> blur, clouds and wind streaks
+  iS+=(Math.min(scrollY,INTRO)-iS)*(reduce?1:.09);if(Math.abs(Math.min(scrollY,INTRO)-iS)<.3)iS=Math.min(scrollY,INTRO);
+  const ip=clamp(iS/INTRO,0,1),ie=ip<.5?4*ip*ip*ip:1-Math.pow(-2*ip+2,3)/2;   // gather speed, then glide in to land
+  const fv=Math.abs(ie-(frame._ip??ie))*vh*4;                                    // vh per frame of falling (column is 4 screens tall)
+  if(frame._ip!==ie||fv>.01){frame._ip=ie;const I=$('intro');I.style.transform=`translateY(${(-ie*400).toFixed(3)}vh)`;I.style.visibility=ie>=1?'hidden':'visible';
+    const bottom=400-400*ie;$('stage').style.transform=ie>=1?'':`translateY(${clamp(bottom-30,0,100).toFixed(2)}vh)`;}
+  fallFx(ie,fv);
+  const target=(maxS>INTRO?Math.max(0,Math.min(1,(scrollY-INTRO)/(maxS-INTRO))):0)*total;
+  sCur+=(target-sCur)*(reduce?1:.12);
+  if(Math.abs(target-sCur)<.05)sCur=target;
+  const m=mapScroll(sCur),prev=cur;cur=m.cur;dive=m.d;diveH=m.h;
+  const v=Math.abs(cur-prev);const inTravel=SCENES[clamp(Math.floor((cur+vw/2)/STEP),0,N-1)].travel;blurAmt+=((reduce?0:Math.max(clamp((v-2)*.9,0,22),inTravel&&v>.5?9:0))-blurAmt)*.15;
+  blurOn=blurOn?blurAmt>.35:blurAmt>1.5;const bl=blurOn;$('mblurG').setAttribute('stdDeviation',`${Math.max(0,blurAmt-1.2).toFixed(1)} 0`);
+  scenesEl.forEach((el,i)=>{const L=i*STEP-cur,vis=L<vw&&L+SW>0,on=bl&&vis;if(el.classList.contains('blur')!==on)el.classList.toggle('blur',on);
+    const r=el._r;if(!r||!vis)return;
+    let t=clamp((cur-r.c0)/(r.c1-r.c0),0,1);t=t*t*(3-2*t);
+    if(el._t===t)return;el._t=t;
+    const X=(r.f0+(r.f1-r.f0)*t)-r.Mw/3;
+    el.style.maskPosition=el.style.webkitMaskPosition=`${X.toFixed(1)}px 0, 0 0`;
+    r.rim.style.backgroundPosition=`${X.toFixed(1)}px 0`;r.rim.style.opacity=(.5*Math.sin(Math.PI*t)).toFixed(2);});
+  $('rider').style.top=(base+along('dy',0,cur+riderX)*vh)+'px';
+  {const sc=SCENES[clamp(Math.floor((cur+riderX+SW*OV*.5)/STEP),0,N-1)];Music.setZone(ZONE_OF[sc.key]);
+   const leg=segs.find(g=>cur+riderX>=g.start&&cur+riderX<g.end);
+   Music.sfx({mode:leg?leg.mode:'walk',speed:Math.abs(cur-(window._pc??cur)),indoor:!!sc.indoor,crowd:CROWD[sc.key]||0,waves:WAVES[sc.key]||0});window._pc=cur;}
+  {let gk=null;for(const k of keys){if(sCur<=k.s1){gk=k;break;}}
+   const go=$('go');let op=0;
+   const gi=gk?keys.indexOf(gk):-1;let rk=null,op0=0;
+   if(gk&&!gk.stay){rk=gk;const t=(sCur-gk.s0)/(gk.s1-gk.s0);op0=clamp(t/.08,0,1);}                       // fade in as we set off
+   else if(gk&&gi>0&&!keys[gi-1].stay){rk=keys[gi-1];const t=(sCur-gk.s0)/(gk.s1-gk.s0);op0=clamp((.45-t)/.15,0,1);}  // stay readable after arriving
+   else if(gk&&gi<keys.length-1&&!keys[gi+1].stay){const t=(sCur-gk.s0)/(gk.s1-gk.s0);if(t>.9){rk=keys[gi+1];op0=clamp((t-.9)/.1,0,1);}}
+   if(rk&&GO[SCENES[rk.to].key]){op=op0;gk=rk;
+     if(go._to!==gk.to){go._to=gk.to;const n=SCENES.filter((x,i)=>!x.travel&&i<=gk.to).length;
+       $('gok').textContent='';$('got').textContent=GO[SCENES[gk.to].key];}}
+   if(Math.abs((go._op??0)-op)>.01){go._op=op;go.style.opacity=op.toFixed(2);go.style.transform=`translate(-50%,${((1-op)*-10).toFixed(1)}px)`;}}
+  render();stepFx(dt);requestAnimationFrame(frame);
+}
+
+/* panel */
+let lastFocus=null;
+function openPanel(key,from){
+  try{Music.click(true);}catch(e){}
+  const P=PANELS[key];if(!P)return;
+  lastFocus=from||document.activeElement;
+  $('pkick').textContent=P.kick;$('ptitle').textContent=P.title;$('pintro').textContent=P.intro||'';
+  let h='';
+  const pinSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#E0453A" d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>';
+  const mapA=(q,label)=>`<a class="maplink" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}" target="_blank" rel="noopener">${pinSvg}${label}</a>`;
+  if(P.map)h+=`<div style="margin-bottom:6px">${mapA(P.map,'ดูแผนที่ใน Google Maps')}</div>`;
+  P.items.forEach((it,i)=>{h+=`<div class="item"><div class="num">${i+1}</div><div><h4>${esc(it.h)}</h4>${it.tag?`<span class="tag">${esc(it.tag)}</span>`:''}<p>${esc(it.p)}</p>${it.m?`<div class="meta">${esc(it.m)}</div>`:''}${P.maps?mapA(it.q||it.h+' บางแสน ชลบุรี','เปิดใน Google Maps'):''}</div></div>`;});
+  if(P.note)h+=`<div class="note">${esc(P.note)}</div>`;
+  if(P.sources)h+=`<div class="src">แหล่งข้อมูล: ${P.sources.map(([t,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`).join(' · ')}</div>`;
+  $('pbody').innerHTML=h;$('pbody').scrollTop=0;
+  $('panel').classList.add('show');$('panel').setAttribute('aria-hidden','false');$('veil').classList.add('show');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>$('close').focus(),50);
+}
+function closePanel(){
+  try{if($('panel').classList.contains('show'))Music.click(false);}catch(e){}
+  $('panel').classList.remove('show');$('panel').setAttribute('aria-hidden','true');$('veil').classList.remove('show');
+  document.body.style.overflow='';
+  if(lastFocus&&lastFocus.focus)lastFocus.focus();
+}
+$('close').onclick=closePanel;$('veil').onclick=closePanel;
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&$('panel').classList.contains('show'))closePanel();
+  if($('panel').classList.contains('show'))return;
+  if(e.key==='ArrowRight'){scrollBy({top:160});e.preventDefault();}
+  if(e.key==='ArrowLeft'){scrollBy({top:-160});e.preventDefault();}
+});
+$('again').onclick=()=>scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+addEventListener('resize',()=>{layout();lastCh=-1;});
+layout();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
+
+</body></html>
